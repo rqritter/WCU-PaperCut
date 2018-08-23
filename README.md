@@ -8,13 +8,10 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 #### 1. C:\Program Files\PaperCut MF\server\server.properties
 
 * Use External SQL Database
-
   * Comment out internal DB
-  
   ```
     #database.type=Internal
-  ```
-  
+  ``` 
   * Add Settings For SQL Server
   
   ```
