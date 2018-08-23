@@ -58,8 +58,11 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
     ```
     cbord-dx.server.ssl=N
     ```
- * Specify the (*two digit*) Terminal Address to use when connecting to the CBORD server
+ * Specify the **two digit** Terminal Address to use when connecting to the CBORD server
     ```
     cbord-dx.location=01
-    ```  
-    
+    ```
+  * Specify the CBORD code map (We are using "5" to indicate Cat Cash)
+    ```
+    cbord-dx.code-map=5
+    ```    
