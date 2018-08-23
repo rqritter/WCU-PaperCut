@@ -3,7 +3,7 @@ Using a MS failover Cluster named `papercut.wcu.edu`
 Virtual Applcation Server is `postscript.wcu.edu`  
 Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
 
-### Changes to settings files
+### Changes to Applcation Server settings files
 
 #### 1. C:\Program Files\PaperCut MF\server\server.properties
 
@@ -34,3 +34,23 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
     ```
     wrapper.java.additional.6=-XX:DefaultMaxRAMFraction=2
     ```
+### Changes to Payment Gateway settings files (for CBORD)
+
+#### 3. C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties
+
+* Enable CBORD Payment Gateway
+    ```
+    cbord-dx.enabled=Y
+    ```
+* Set the CBORD server type to ODYSSEY
+    ```
+    cbord-dx.server.type=ODYSSEY
+    ```
+ * Specify the CBORD server IP Address
+    ```
+    cbord-dx.server.host=152.30.33.42
+    ```
+ * Specify the CBORD server port
+    ```
+    cbord-dx.server.port=3785
+    ``` 
