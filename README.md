@@ -54,3 +54,12 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
     ```
     cbord-dx.server.port=3785
     ``` 
+ * Disable SSL/TLS connection to the CBORD server
+    ```
+    cbord-dx.server.ssl=N
+    ```
+ * Specify the (*two digit*) Terminal Address to use when connecting to the CBORD server
+    ```
+    cbord-dx.location=01
+    ```  
+    
