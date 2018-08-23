@@ -10,7 +10,7 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 * Disable CSRF checks (needed for clustering)
   * Un-comment "server.csrf-check.validate-request-origin" and set to "N"
   ```
-  server.csrf-check.validate-request-origin=N
+    server.csrf-check.validate-request-origin=N
   ```
   
 * Use External SQL Database
