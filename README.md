@@ -50,7 +50,7 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
   `cbord-dx.operator=3141`
 * Tell CBORD we are sending card numbers (instructed to set to "Y" by CBORD support)  
   `cbord-dx.sending-card-numbers=Y`
-* Disable manual transfer (we are using "on demand" instead)  
+* Disable manual transfer (we are using "on-demand" instead)  
   `cbord-dx.manual-transfer.enabled=N`
-* Disable manual transfer (we are using "on demand" instead)  
-  `cbord-dx.manual-transfer.enabled=N`
+* Enable on-demand transfer   
+  `cbord-dx.on-demand-transfer.enabled=Y`
