@@ -29,8 +29,8 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
     ```
 #### 2. C:\Program Files\PaperCut MF\server\custom\service.conf
 
-* Increase the share of memory avalable to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)
-  Add the following line
+* Increase the share of memory avalable to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)  
+  Add the following new line to the file
   ```
   wrapper.java.additional.6=-XX:DefaultMaxRAMFraction=2
   ```
