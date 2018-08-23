@@ -5,4 +5,4 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 
 ### Changes to settings files
 
-#### C:\Program Files\PaperCut MF\server\server.properties
+#### 1. C:\Program Files\PaperCut MF\server\server.properties
