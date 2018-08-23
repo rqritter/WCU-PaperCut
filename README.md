@@ -33,16 +33,24 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 #### 3. C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties
 
 * Enable CBORD Payment Gateway  
-    `cbord-dx.enabled=Y`
+  `cbord-dx.enabled=Y`
 * Set the CBORD server type to ODYSSEY  
-    `cbord-dx.server.type=ODYSSEY`
- * Specify the CBORD server IP Address  
-    `cbord-dx.server.host=152.30.33.42`
- * Specify the CBORD server port  
-    `cbord-dx.server.port=3785` 
- * Disable SSL/TLS connection to the CBORD server  
-    `cbord-dx.server.ssl=N`
- * Specify the **two digit** Terminal Address to use when connecting to the CBORD server  
-    `cbord-dx.location=01`
-  * Specify the CBORD code map (We are using "5" to indicate Cat Cash)  
-    `cbord-dx.code-map=5`    
+  `cbord-dx.server.type=ODYSSEY`
+* Specify the CBORD server IP Address  
+  `cbord-dx.server.host=152.30.33.42`
+* Specify the CBORD server port  
+  `cbord-dx.server.port=3785` 
+* Disable SSL/TLS connection to the CBORD server  
+  `cbord-dx.server.ssl=N`
+* Specify the **two digit** Terminal Address to use when connecting to the CBORD server  
+  `cbord-dx.location=01`
+* Specify the CBORD code map (We are using "5" to indicate Cat Cash)  
+  `cbord-dx.code-map=5` 
+* Set a CBORD operator identifier (Required, but can be any 4 digit number)  
+  `cbord-dx.operator=3141`
+* Tell CBORD we are sending card numbers (instructed to set to "Y" by CBORD support)  
+  `cbord-dx.sending-card-numbers=Y`
+* Disable manual transfer (we are using "on demand" instead)  
+  `cbord-dx.manual-transfer.enabled=N`
+* Disable manual transfer (we are using "on demand" instead)  
+  `cbord-dx.manual-transfer.enabled=N`
