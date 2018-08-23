@@ -8,18 +8,16 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 #### 1. C:\Program Files\PaperCut MF\server\server.properties
 
 * Disable CSRF checks (needed for clustering)
- * Un-comment "server.csrf-check.validate-request-origin" and set to "N"
-   ```
-   server.csrf-check.validate-request-origin=N
-   ```
-  
+  * Un-comment "server.csrf-check.validate-request-origin" and set to "N"
+    ```
+    server.csrf-check.validate-request-origin=N
+    ```
 * Use External SQL Database
- * Comment out internal DB
+  * Comment out internal DB
    ```
    #database.type=Internal
    ``` 
- * Add Settings For SQL Server
-  
+  * Add Settings For SQL Server
    ```
    # WCU MS SQLServer connection
    # IMPORTANT: The username below is a SQL Server user, not a Windows user.
