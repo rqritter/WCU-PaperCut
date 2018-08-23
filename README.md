@@ -2,6 +2,7 @@
 Using a MS failover Cluster named `papercut.wcu.edu`  
 Virtual Applcation Server is `postscript.wcu.edu`  
 Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
+https://github.com/rqritter/WCU-PaperCut
 
 ### Changes to Applcation Server settings files
 
