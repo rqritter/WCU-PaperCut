@@ -8,15 +8,11 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 #### 1. C:\Program Files\PaperCut MF\server\server.properties
 
 * Disable CSRF checks (needed for clustering)
-  * Un-comment "server.csrf-check.validate-request-origin" and set to "N"
-    ```
-    server.csrf-check.validate-request-origin=N
-    ```
+  * Un-comment "server.csrf-check.validate-request-origin" and set to "N"  
+    `server.csrf-check.validate-request-origin=N`
 * Use External SQL Database
-  * Comment out internal DB
-    ```
-    #database.type=Internal
-    ``` 
+  * Comment out internal DB  
+    `#database.type=Internal` 
   * Add Settings For SQL Server
     ```
     # WCU MS SQLServer connection
@@ -30,39 +26,23 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 #### 2. C:\Program Files\PaperCut MF\server\custom\service.conf
 
 * Increase the share of memory avalable to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)  
-  * Add the following new line to the file
-    ```
-    wrapper.java.additional.6=-XX:DefaultMaxRAMFraction=2
-    ```
+  * Add the following new line to the file  
+    `wrapper.java.additional.6=-XX:DefaultMaxRAMFraction=2`
 ### Changes to Payment Gateway settings files (for CBORD)
 
 #### 3. C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties
 
-* Enable CBORD Payment Gateway
-    ```
-    cbord-dx.enabled=Y
-    ```
+* Enable CBORD Payment Gateway  
+    `cbord-dx.enabled=Y`
 * Set the CBORD server type to ODYSSEY
-    ```
-    cbord-dx.server.type=ODYSSEY
-    ```
+    `cbord-dx.server.type=ODYSSEY`
  * Specify the CBORD server IP Address
-    ```
-    cbord-dx.server.host=152.30.33.42
-    ```
+    `cbord-dx.server.host=152.30.33.42`
  * Specify the CBORD server port
-    ```
-    cbord-dx.server.port=3785
-    ``` 
+    `cbord-dx.server.port=3785` 
  * Disable SSL/TLS connection to the CBORD server
-    ```
-    cbord-dx.server.ssl=N
-    ```
+    `cbord-dx.server.ssl=N`
  * Specify the **two digit** Terminal Address to use when connecting to the CBORD server
-    ```
-    cbord-dx.location=01
-    ```
+    `cbord-dx.location=01`
   * Specify the CBORD code map (We are using "5" to indicate Cat Cash)
-    ```
-    cbord-dx.code-map=5
-    ```    
+    `cbord-dx.code-map=5`    
