@@ -16,16 +16,16 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 * Use External SQL Database
   * Comment out internal DB
   ```
-    #database.type=Internal
+  #database.type=Internal
   ``` 
   * Add Settings For SQL Server
   
   ```
-    # WCU MS SQLServer connection
-    # IMPORTANT: The username below is a SQL Server user, not a Windows user.
-    database.type=SQLServer
-    database.driver=net.sourceforge.jtds.jdbc.Driver
-    database.url=jdbc:jtds:sqlserver://ThamesAG.wcu.edu/papercut
-    database.username=Papercut.sa
-    database.password=[see secret server]
+  # WCU MS SQLServer connection
+  # IMPORTANT: The username below is a SQL Server user, not a Windows user.
+  database.type=SQLServer
+  database.driver=net.sourceforge.jtds.jdbc.Driver
+  database.url=jdbc:jtds:sqlserver://ThamesAG.wcu.edu/papercut
+  database.username=Papercut.sa
+  database.password=[see secret server]
   ```
