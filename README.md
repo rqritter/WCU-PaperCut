@@ -8,6 +8,16 @@ https://github.com/rqritter/WCU-PaperCut
 
 #### 1. C:\Program Files\PaperCut MF\server\server.properties
 
+* Use Incommon Certificate
+  * Create a keystore with the certificate pair and chain (For more information, see the KB article: https://www.papercut.com/kb/Main/SSLWithKeystoreExplorer)
+  * Set Papercut to use the certificate
+    ```
+    ### SSL Key/Certificate ###
+    # Custom SSL keystore example (recommend placing in the custom directory)
+    server.ssl.keystore=custom/papercut-keystore
+    server.ssl.keystore-password=[see secret server]
+    server.ssl.key-password=[same as keystore password]
+    ```
 * Disable CSRF checks (needed for clustering)
   * Un-comment "server.csrf-check.validate-request-origin" and set to "N"  
     `server.csrf-check.validate-request-origin=N`
