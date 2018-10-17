@@ -1,0 +1,33 @@
+"server-command.exe" is located "C:\Program Files\PaperCut MF\server\bin\win"
+
+##Delete printers tied to a given server
+server-command.exe delete-printer "<server_name>" "<printer_name>"
+   Example: server-command.exe delete-printer "birman.wcu.edu" "Test Printer"
+
+##Delete all printers tied to a given server
+server-command.exe delete-printer "<server_name>" "[All Printers]"
+   Example: server-command.exe delete-printer "birman.wcu.edu" "[All Printers]"
+
+##Set Printer Groups for printer
+server-command.exe set-printer-groups "<server_name>" "<printer_name>" "<printer_group_names>"
+   Example: server-command.exe set-printer-groups "bannercupstest" "forsythb5" "Banner"
+
+##Import Card IDs from file
+server-command.exe batch-import-user-card-id-numbers <import_file> <overwrite_existing_pins>(optional, default TRUE)
+   Example: server-command.exe batch-import-user-card-id-numbers "C:\Scripts\papercut.txt"
+
+##Import Shared Accounts (Billing Codes) from file
+server-command.exe batch-import-shared-accounts <import_file> <test>(TRUE or FALSE) <delete_non_existent_accounts>(TRUE or FALSE)
+   Example: server-command.exe batch-import-shared-accounts "C:\Scripts\SharedAccounts.txt" TRUE FALSE
+
+##Lookup user by card number
+server-command.exe look-up-user-name-by-card-no <card_number>
+   Example: server-command.exe look-up-user-name-by-card-no 920123456
+
+##Set card ID for user
+server-command.exe set-user-property <username> primary-card-number <card_number>
+   Example: server-command.exe set-user-property rritter primary-card-number 920123456
+
+##Set secondary card ID for user
+server-command.exe set-user-property <username> secondary-card-number <card_number>
+   Example: server-command.exe set-user-property rritter secondary-card-number 12345
