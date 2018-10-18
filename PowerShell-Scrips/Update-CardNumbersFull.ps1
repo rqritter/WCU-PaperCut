@@ -14,21 +14,34 @@
      and dealing with them
 
 .NOTES
-  Updated: 2018-10-03
+  Updated: 2018-10-17
   Author: Richie
   Changes:
-    2018-10-3  Work in Progress
+    2018-10-17 Adding script to check if active node
 
   ToDo:
     1. Cleanup the duplication
     2. Consolidate logging
+    3. Only run if PaperCut service is running (to check if server is active in the cluster)
 #>
-#----------------[ Logging ]----------------------------------------------------
+#----------------[ Logging TBD ]----------------------------------------------------
 
 # $formatedDate = get-date -f yyyy-MM-dd
 # $logFile = "c:\scripts\logs\CardNumbersFull-$formatedDate.log"
 
-#----------------[ 1. Get Updated File ]----------------------------------------------------
+#----------------[ Only run if active server ]--------------------------------------
+<#
+  The PaperCut application server runs on a MS Failover Cluster. This script should only run 
+  on the server that is the active node of the cluster. The PaperCut service will only be running on
+  the active server so we check the status of the service to see if the script should run.
+#>
+$pcServiceDisplayName = "PaperCut Application Server"
+$pcService = Get-Service -Name $pcServiceDisplayName
+
+while ($pcService.Status -eq "Running")
+{
+
+#----------------[ 1. Get Updated File ]--------------------------------------------
 <#
 Standalone script: Get-UpdatedFile.ps1
   Backup the local "papercut-extract.tsv" file and get the latest extract file from \\Bounty2\nfsprod\dataoutput\it\
@@ -41,7 +54,7 @@ $currentImportFile = "C:\Scripts\papercut-extract.tsv"
 $sourceBounty2 = "\\bounty2\nfsprod\dataoutput\it\"
 $newImportFile = "papercut-extract.tsv"
 
-#----------------[ Get Updated File - Main Execution ]----------------------------------------------------
+#----------------[ Get Updated File - Main Execution ]--------------------------------------------------
 
 # Backup current file
 Copy-Item -Path $currentImportFile -Destination "$currentImportFile.bak" -force
@@ -55,15 +68,13 @@ Copy-Item -Path "source:\$NewImportFile" $CurrentImportFile -Force
 # Un-map Bounty2
 Remove-PSDrive source
 
-#-----------------------------------------------------------------------------------------------
-
-#----------------[ 2. Get User Differences ]----------------------------------------------------
+#----------------[ 2. Get User Differences ]----------------------------------------
 <#
 Standalone script: Get-UserDifferences.ps1
   Compares new extract file from banner (delivered daily to Bounty2 at 6AM & copied to papercut server at 6:15AM)
   to a report file (created by papercut daily around 1AM). Produces a tsv file with accounts that need to be updated.
 #>
-#----------------[ Get User Differences - Declarations ]----------------------------------------------------
+#----------------[ Get User Differences - Declarations ]------------------------------------------------
 
 $newCSV = "C:\Scripts\papercut-extract.tsv"
 $oldCSV = "C:\Program Files\PaperCut MF\server\data\scheduled-reports\current_users.csv"
@@ -75,7 +86,7 @@ $unManagedUsers = Get-Content $unManagedFile | Select-Object -Skip 2 | ConvertFr
 $cardNumNew = Import-Csv $newCSV -Delimiter "`t" -Header Username,"Primary Card Number",PIN,"Secondary Card Number"
 $cardNumOld = Get-Content $oldCSV | Select-Object -Skip 2 | ConvertFrom-Csv
 
-#----------------[ Get User Differences - Execution ]----------------------------------------------------
+#----------------[ Get User Differences - Execution ]---------------------------------------------------
 
 # Backup current results and missing files
 Move-Item -Path $resultsFile -Destination "$resultsFile.bak" -Force
@@ -114,9 +125,7 @@ if ($unManagedUsers.username -notcontains $newRecord.Username)
    }
 }
 
-#----------------------------------------------------------------------------------------------
-
-#----------------[ 3. Update Card Numbers ]----------------------------------------------------
+#----------------[ 3. Update Card Numbers ]-----------------------------------------
 <#
 Standalone script: Update-CardNumbers.ps1
   This script will parse a tab separated file for users with primary card numbers(92#) and secondary card numbers (prox ID).
@@ -125,7 +134,7 @@ Standalone script: Update-CardNumbers.ps1
   Card number not unique errors can be caused if a user has moved from staff to student or student to staff since their previous primary account will be assigned the card number.
   If the error is caused because a card number not unique, the script will look up the current user in PaperCut and clear the card number.
 #>
-#----------------[ Update Card Numbers - Declarations ]----------------------------------------------------
+#----------------[ Update Card Numbers - Declarations ]-------------------------------------------------
 
 $extract = Import-Csv c:\scripts\results.tsv -Delimiter "`t" -Header Username,PrimaryCard,PIN,SecondaryCard
 $successMessage = "Command executed successfully."
@@ -135,7 +144,7 @@ $errorDuplicateCardID = "Error: Unable to execute server command. Tried to set *
 $formatedDate = get-date -f yyyy-MM-dd
 $logFile = "c:\scripts\logs\CardUpdates-$formatedDate.log"
 
-#----------------[ Update Card Numbers - Main Execution ]----------------------------------------------------
+#----------------[ Update Card Numbers - Main Execution ]-----------------------------------------------
 ForEach ($user in $extract){
 
 # Check if primary card is set in file
@@ -180,4 +189,4 @@ if ($user.SecondaryCard -ne "-")
       {Out-File -FilePath $logFile -InputObject $ServerCommand2 -Append}
    }
 }
-
+}
