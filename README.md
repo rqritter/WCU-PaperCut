@@ -6,24 +6,33 @@
 - https://github.com/rqritter/WCU-PaperCut
 
 ### Contents
-- [PaperCut Application Server Post install Settings](#papercut-application-server-post-install-settings)
+- [1. PaperCut Application Server](#1-papercut-application-server)
     - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
         - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
         - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
     - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
         - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
-- [Print Server Settings](#print-server-settings)
+- [2. Secondary Print Servers](#2-secondary-print-servers)
     - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
         - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
     - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
         - [PowerShell for changes](#powershell-for-changes)
         - [Detailed registry changes](#detailed-registry-changes)
     - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
+- [3. Mobility Print Server](#3-mobility-print-server)
+    - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
+        - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
+- [4. Web Print Sandbox Server](#4-web-print-sandbox-server)
+    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files-1)
+        - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf-1)
+- [5. RightFax Server](#5-rightfax-server)
+    - [Changes to Applcation Server configuration](#changes-to-applcation-server-configuration)
+        - [Detail](#detail)
 
-## PaperCut Application Server Post install Settings
-MS failover Cluster named `papercut.wcu.edu`  
-Virtual Applcation Server is `postscript.wcu.edu`  
-Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
+## 1. PaperCut Application Server
+- MS failover Cluster named `papercut.wcu.edu`  
+- Virtual Applcation Server is `postscript.wcu.edu`  
+- Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
 
 ### Changes to Applcation Server configuration files
 
@@ -88,10 +97,10 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 - Enable on-demand transfer   
   `cbord-dx.on-demand-transfer.enabled=Y`
 
-## Print Server Settings
-F5 Load Balancer is acting as `printserver.wcu.edu`  
-Backend servers are `serif.wcu.edu`, `helvetica.wcu.edu`, `palatino.wcu.edu`  
-Settings need to be done on each of the backend servers  
+## 2. Secondary Print Servers
+- F5 Load Balancer is acting as `printserver.wcu.edu`  
+- Backend servers are `serif.wcu.edu`, `helvetica.wcu.edu`, `palatino.wcu.edu`  
+- Settings need to be done on each of the backend servers  
 
 ### Changes to Print Server configuration files
 
@@ -133,4 +142,27 @@ Settings need to be done on each of the backend servers
     152.30.32.92     printserver
     ```
 
+## 3. Mobility Print Server
+- Mobility Print Server `wingding.wcu.edu`  
+- Acts as DNS Server for `mobile-print.wcu.edu`  
+- TBD  
 
+### Changes to Mobility Print Server configuration files
+
+#### C:\Program Files\PaperCut MF\..
+
+## 4. Web Print Sandbox Server
+- Server `sceptre.wcu.edu`  
+- TBD   
+
+### Changes to Applcation Server configuration files
+
+#### C:\Program Files\PaperCut MF\..
+
+## 5. RightFax Server
+- Server `ditto.wcu.edu`  
+- TBD
+
+### Changes to Applcation Server configuration
+
+#### Detail
