@@ -7,21 +7,27 @@
 
 ### Contents
 - [PaperCut Application Server Post install Settings](#papercut-application-server-post-install-settings)
-    - [Changes to Applcation Server settings files](#changes-to-applcation-server-settings-files)
-        - [1. C:\Program Files\PaperCut MF\server\server.properties](#1-cprogram-filespapercut-mfserverserverproperties)
-        - [2. C:\Program Files\PaperCut MF\server\custom\service.conf](#2-cprogram-filespapercut-mfservercustomserviceconf)
+    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
+        - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
+        - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
     - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
-        - [1. C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#1-cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
+        - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
 - [Print Server Settings](#print-server-settings)
+    - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
+        - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
+    - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
+        - [PowerShell for changes](#powershell-for-changes)
+        - [Detailed registry changes](#detailed-registry-changes)
+    - [Modify the local host file of the servers](#modify-the-local-host-file-of-the-servers)
 
 ## PaperCut Application Server Post install Settings
 MS failover Cluster named `papercut.wcu.edu`  
 Virtual Applcation Server is `postscript.wcu.edu`  
 Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
 
-### Changes to Applcation Server settings files
+### Changes to Applcation Server configuration files
 
-#### 1. C:\Program Files\PaperCut MF\server\server.properties
+#### C:\Program Files\PaperCut MF\server\server.properties
 
 - Use Incommon Certificate
   - Create a keystore with the certificate pair and chain (For more information, see the KB article: https://www.papercut.com/kb/Main/SSLWithKeystoreExplorer)
@@ -49,7 +55,7 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
     database.username=Papercut.sa
     database.password=[see secret server]
     ```
-#### 2. C:\Program Files\PaperCut MF\server\custom\service.conf
+#### C:\Program Files\PaperCut MF\server\custom\service.conf
 
 - Increase the share of memory avalable to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)  
   - Add the following new line to the file  
@@ -57,7 +63,7 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 
 ### Changes to Payment Gateway settings files (for CBORD)
 
-#### 1. C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties
+#### C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties
 
 - Enable CBORD Payment Gateway  
   `cbord-dx.enabled=Y`
@@ -85,3 +91,46 @@ Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`
 ## Print Server Settings
 F5 Load Balancer is acting as `printserver.wcu.edu`  
 Backend servers are `serif.wcu.edu`, `helvetica.wcu.edu`, `palatino.wcu.edu`  
+Settings need to be done on each of the backend servers  
+
+### Changes to Print Server configuration files
+
+#### C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf
+
+- Define the name or IP address of the application server  
+  `ApplicationServer=postscript.wcu.edu`
+- Set the system name reported by the server (cluster FQDN)  
+  `ServerName=serif.wcu.edu`
+- Change the name of the server used when binding to print queues (cluster FQDN)  
+  `PrintServerName=\\serif.wcu.edu`
+- Change the SNMP Community string used to query the printers (see SecretServer for SNMP Community string)  
+  `SNMPCommunity=public`
+
+### Registry changes to enable Print Server clustering
+
+#### PowerShell for changes
+  - Run in an elevated PowerShell session
+    ```
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Print -Name DnsOnWire -PropertyType DWord -Value 1
+    ```
+#### Detailed registry changes
+- HKLM\SYSTEM\CurrentControlSet\Control\Lsa  
+  `DWORD Value: DisableLoopbackCheck = 1`
+- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
+  `Multi-String Value: OptionalNames = printserver`
+- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
+  `DWORD Value: DisableStrictNameChecking = 1`
+- HKLM\SYSTEM\CurrentControlSet\Control\Print  
+  `DWORD Value: DnsOnWire = 1`
+
+### Modify the local host file of the servers
+  - Add `printserver` and `printserver.wcu.edu` to the host file with the backend server`s IP Address
+    ```
+    152.30.32.92     printserver.wcu.edu
+    152.30.32.92     printserver
+    ```
+
+
