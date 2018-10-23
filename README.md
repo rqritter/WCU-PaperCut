@@ -18,7 +18,7 @@
     - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
         - [PowerShell for changes](#powershell-for-changes)
         - [Detailed registry changes](#detailed-registry-changes)
-    - [Modify the local host file of the servers](#modify-the-local-host-file-of-the-servers)
+    - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
 
 ## PaperCut Application Server Post install Settings
 MS failover Cluster named `papercut.wcu.edu`  
@@ -126,8 +126,8 @@ Settings need to be done on each of the backend servers
 - HKLM\SYSTEM\CurrentControlSet\Control\Print  
   `DWORD Value: DnsOnWire = 1`
 
-### Modify the local host file of the servers
-  - Add `printserver` and `printserver.wcu.edu` to the host file with the backend server`s IP Address
+### Modify the local hosts file of the servers
+  - Add the cluster name and FQDN to the hosts file with the backend server`s IP Address
     ```
     152.30.32.92     printserver.wcu.edu
     152.30.32.92     printserver
