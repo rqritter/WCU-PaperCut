@@ -36,6 +36,6 @@ function printJobHook(inputs, actions) {
   //Change the user associated with the job and redirect to the normal release queue
   actions.client.sendMessage('Job can be released with Department Copy Card ' + deptCopyCard);
   actions.job.changeUser(deptCopyCard);
-  actions.job.redirect("serif.wcu.edu\\Paw_Print", {allowHoldAtTarget: true});
+  actions.job.redirect("serif.wcu.edu\\Paw_Print", {allowHoldAtTarget: true, recalculateCost: true});
   return;
 }

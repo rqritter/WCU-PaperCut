@@ -38,7 +38,7 @@
 $pcServiceDisplayName = "PaperCut Application Server"
 $pcService = Get-Service -Name $pcServiceDisplayName
 
-while ($pcService.Status -eq "Running")
+if ($pcService.Status -eq "Running")
 {
 
 #----------------[ 1. Get Updated File ]--------------------------------------------

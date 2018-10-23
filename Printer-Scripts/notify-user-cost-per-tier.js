@@ -11,10 +11,10 @@ function printJobHook(inputs, actions) {
   actions.job.chargeToPersonalAccount();
   
   // The list of printer tiers with a printer using each.
-  var tierOne_Printer = "serif.wcu.edu\\Printer001";
-  var tierTwo_Printer = "serif.wcu.edu\\Printer002";
-  var tierThree_Printer = "serif.wcu.edu\\Printer003";
-  var tierFour_Printer = "serif.wcu.edu\\Printer004";
+  var tierOne_Printer = "printserver.wcu.edu\\Printer001";
+  var tierTwo_Printer = "printserver.wcu.edu\\Printer002";
+  var tierThree_Printer = "printserver.wcu.edu\\Printer003";
+  var tierFour_Printer = "printserver.wcu.edu\\Printer004";
   
   // Calculate the cost for each printer tier.
   var tierOne_Cost = inputs.job.calculateCostForPrinter(tierOne_Printer);
@@ -34,7 +34,8 @@ function printJobHook(inputs, actions) {
     'hideJobDetails' : true,
     'dialogTitle': 'Printer Tiers',
     'dialogDesc': 'Please pay attention to your printer tier',
-    'timeoutSecs' : 60
+    'timeoutSecs' : 60,
+    'questionID' : 'Prompt1'
   };
   
   var response = actions.client.promptPrintCancel(
