@@ -120,20 +120,21 @@
 #### PowerShell for changes
   - Run in an elevated PowerShell session
     ```
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Print -Name DnsOnWire -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
     ```
 #### Detailed registry changes
+
+- HKLM\SYSTEM\CurrentControlSet\Control\Print  
+  `DWORD Value: DnsOnWire = 1`
 - HKLM\SYSTEM\CurrentControlSet\Control\Lsa  
   `DWORD Value: DisableLoopbackCheck = 1`
 - HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
-  `Multi-String Value: OptionalNames = printserver`
-- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
   `DWORD Value: DisableStrictNameChecking = 1`
-- HKLM\SYSTEM\CurrentControlSet\Control\Print  
-  `DWORD Value: DnsOnWire = 1`
+- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
+  `Multi-String Value: OptionalNames = printserver`
 
 ### Modify the local hosts file of the servers
   - Add the cluster name and FQDN to the hosts file with the backend server`s IP Address
