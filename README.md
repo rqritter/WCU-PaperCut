@@ -1,33 +1,36 @@
-# PaperCut Installation Settings for WCU <!-- omit in toc -->
+# PaperCut Installation Settings for WCU
 
-### Notes <!-- omit in toc -->
+### Notes
 - Updated: 10/23/2018
 - Author: Richie Ritter
 - https://github.com/rqritter/WCU-PaperCut
 
 ### Contents
-- [1. PaperCut Application Server](#1-papercut-application-server)
-    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
-        - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
-        - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
-    - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
-        - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
-- [2. Secondary Print Servers](#2-secondary-print-servers)
-    - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
-        - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
-    - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
-        - [PowerShell for changes](#powershell-for-changes)
-        - [Detailed registry changes](#detailed-registry-changes)
-    - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
-- [3. Mobility Print Server](#3-mobility-print-server)
-    - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
-        - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
-- [4. Web Print Sandbox Server](#4-web-print-sandbox-server)
-    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files-1)
-        - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf-1)
-- [5. RightFax Server](#5-rightfax-server)
-    - [Changes to Applcation Server configuration](#changes-to-applcation-server-configuration)
-        - [Detail](#detail)
+- [PaperCut Installation Settings for WCU](#papercut-installation-settings-for-wcu)
+        - [Notes](#notes)
+        - [Contents](#contents)
+    - [1. PaperCut Application Server](#1-papercut-application-server)
+        - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
+            - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
+            - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
+        - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
+            - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
+    - [2. Secondary Print Servers](#2-secondary-print-servers)
+        - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
+            - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
+        - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
+            - [PowerShell for changes](#powershell-for-changes)
+            - [Detailed registry changes](#detailed-registry-changes)
+        - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
+    - [3. Mobility Print Server](#3-mobility-print-server)
+        - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
+            - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
+    - [4. Web Print Sandbox Server](#4-web-print-sandbox-server)
+        - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files-1)
+            - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf-1)
+    - [5. RightFax Server](#5-rightfax-server)
+        - [Changes to Applcation Server configuration](#changes-to-applcation-server-configuration)
+            - [Detail](#detail)
 
 ## 1. PaperCut Application Server
 - MS failover Cluster named `papercut.wcu.edu`  
@@ -120,20 +123,21 @@
 #### PowerShell for changes
   - Run in an elevated PowerShell session
     ```
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Print -Name DnsOnWire -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
     ```
 #### Detailed registry changes
+
+- HKLM\SYSTEM\CurrentControlSet\Control\Print  
+  `DWORD Value: DnsOnWire = 1`
 - HKLM\SYSTEM\CurrentControlSet\Control\Lsa  
   `DWORD Value: DisableLoopbackCheck = 1`
 - HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
-  `Multi-String Value: OptionalNames = printserver`
-- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
   `DWORD Value: DisableStrictNameChecking = 1`
-- HKLM\SYSTEM\CurrentControlSet\Control\Print  
-  `DWORD Value: DnsOnWire = 1`
+- HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
+  `Multi-String Value: OptionalNames = printserver`
 
 ### Modify the local hosts file of the servers
   - Add the cluster name and FQDN to the hosts file with the backend server`s IP Address
