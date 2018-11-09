@@ -3,7 +3,6 @@
 ### Notes
 - Updated: 10/23/2018
 - Author: Richie Ritter
-- https://github.com/rqritter/WCU-PaperCut
 
 ### Contents
 - [PaperCut Installation Settings for WCU](#papercut-installation-settings-for-wcu)
