@@ -4,26 +4,26 @@
 Replaces existing printers with new printers based on a file
 
 .NOTES
-  Updated: 2018-11-12
+  Updated: 2018-11-13
   Author: Richie
   ToDo:
-     Most things     
+     Make Compatable with win7 by using WMI instead of get-printer  
 #>
 # Declarations
 
-$ReplacePrintersFile = 'D:\git\WCU-PaperCut\WCU-PaperCut\PowerShell-Scrips\ReplacePrinters.tsv'
+$ReplacePrintersFile = '\\printserver.wcu.edu\Share\Lists\ReplacePrinterList.tsv'
 $OldServers = "^.*centronics.*$|^.*imagewriter.*$|^.*epson.*$"
 
 # Get a list and create an array of all installed shared printers
-$InstalledPrinters = Get-Printer | Where-Object { $_.type -eq "Connection" }
+$InstalledPrinters = Get-WmiObject -Class Win32_Printer
 $ReplacePrinters = [Collections.Generic.List[Object]](Import-Csv $ReplacePrintersFile -Delimiter "`t" -Header "OldPrinter","NewPrinter")
 
 foreach ($CurrentPrinter in $InstalledPrinters){
     if ($CurrentPrinter -match $OldServers){
         $index = $ReplacePrinters.FindIndex( {$args[0].OldPrinter -eq $CurrentPrinter.Name} )
         if ($index -ne "-1"){
-            Remove-Printer $CurrentPrinter.Name
-            Add-Printer -ConnectionName $ReplacePrinters[$index].NewPrinter
+            (New-Object -ComObject WScript.Network).RemovePrinterConnection($CurrentPrinter.Name)
+            (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection($ReplacePrinters[$index].NewPrinter)
         }
     }
 
