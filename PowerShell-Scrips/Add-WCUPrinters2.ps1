@@ -16,6 +16,11 @@
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.forms")
 [System.Windows.forms.Application]::EnableVisualStyles()
 
+# Declarations
+$server = 'printserver.wcu.edu'
+$lastColumnClicked = 0 # tracks the last column number that was clicked
+$lastColumnAscending = $false # tracks the direction of the last sort of this column
+
 # Start Creating Functions
 Function Getprinters{
 
@@ -23,8 +28,8 @@ Function Getprinters{
     $listView_Printers.Items.Clear()
     $listView_Printers.Columns.Clear()
     
-    # Get a list and create an array of all shared printers
-    $printers = net view \\$server | Where-Object { $_ -match "print"} | ForEach-Object { $_ -replace "\s{2,}","`t"} | ConvertFrom-Csv -Delimiter "`t" -Header Name, Type, Description
+    # Get a list and create an array of all shared printers on server
+    $printers = net view \\$server | Where-Object { $_ -cmatch "Print"} | ForEach-Object { $_ -replace "\s{2,}","`t"} | ConvertFrom-Csv -Delimiter "`t" -Header Name, Type, Description
 
     # Create a column in the listView for each property
     $listView_Printers.Columns.Add("Name") | Out-Null
@@ -154,10 +159,6 @@ foreach($listItem in $listItems)
 }
 $activeList.EndUpdate()
 }
-
-$server = 'printserver.wcu.edu'
-$lastColumnClicked = 0 # tracks the last column number that was clicked
-$lastColumnAscending = $false # tracks the direction of the last sort of this column
 
 # Drawing form and controls
 $form_AddPrinters = New-Object System.Windows.forms.form
