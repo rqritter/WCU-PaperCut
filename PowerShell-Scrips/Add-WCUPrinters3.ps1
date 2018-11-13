@@ -60,21 +60,21 @@ Function GetInstalledPrinters{
     $listView_InstalledPrinters.Items.Clear()
     $listView_InstalledPrinters.Columns.Clear()
     
-    # Get a list and create an array of all shared printers
-    $InstalledPrinters = Get-Printer | Where-Object { $_.type -eq "Connection" }
+    # Get a list and create an array of all mapped printers
+    $InstalledPrinters = Get-WmiObject -Class Win32_Printer | Where-Object { $_.SystemName -match "\\\\" }
     
     # Create a column in the listView for each property
-    $listView_InstalledPrinters.Columns.Add("Name") | Out-Null
-    $listView_InstalledPrinters.Columns.Add("Description") | Out-Null
-    $listView_InstalledPrinters.Columns.Add("Server") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("ShareName") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("Location") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("SystemName") | Out-Null
 
     # Looping through each object in the array, and add a row for each
     ForEach ($InstalledPrinter in $InstalledPrinters){
 
         # Create a listViewItem, and add the printer description
         $installedPrintersListViewItem = New-Object System.Windows.forms.ListViewItem($InstalledPrinter.ShareName)
-        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.comment)") | Out-Null
-        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.ComputerName)") | Out-Null
+        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.Location)") | Out-Null
+        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.SystemName)") | Out-Null
 
         # Add the created listViewItem to the ListView control
         # (not adding 'Out-Null' at the end of the line will result in numbers outputred to the console)
@@ -109,7 +109,7 @@ Function InstallPrinters{
 
         # Execute The PowerShell Code and Update the Status of the Progress-Bar
         # Install Printer
-        Add-Printer -ConnectionName \\$server\$PrinterName
+        (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
         
 		## -- Calculate The Percentage Completed
 		$Counter++
@@ -272,3 +272,4 @@ $button_InstallPrinters = New-Object System.Windows.forms.Button
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetPrinters})
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetInstalledPrinters})
 [Void] $form_AddPrinters.ShowDialog()
+$form_AddPrinters.Refresh()
