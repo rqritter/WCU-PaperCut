@@ -155,7 +155,7 @@ foreach($listItem in $listItems)
 $activeList.EndUpdate()
 }
 
-$server = 'serif.wcu.edu'
+$server = 'printserver.wcu.edu'
 $lastColumnClicked = 0 # tracks the last column number that was clicked
 $lastColumnAscending = $false # tracks the direction of the last sort of this column
 
