@@ -34,11 +34,12 @@ Function Getprinters{
     $printers = Import-Csv $PrinterListFile -Delimiter "`t"
 
     # Create a column in the listView for each property
+    # (not adding 'Out-Null' at the end of the line can result in output to the console)
     $listView_Printers.Columns.Add("ShareName") | Out-Null
     $listView_Printers.Columns.Add("Location") | Out-Null
     $listView_Printers.Columns.Add("Comment") | Out-Null
 
-    # Looping through each object in the array, and add a row for each
+    # Loop through each object in the array, and add a row for each
     ForEach ($Printer in $printers){
 
         # Create a listViewItem, and add the printer location and comment
@@ -47,7 +48,6 @@ Function Getprinters{
         $printerListViewItem.SubItems.Add("$($printer.Comment)") | Out-Null
 
         # Add the created listViewItem to the ListView control
-        # (not adding 'Out-Null' at the end of the line will result in numbers output to the console)
         $listView_Printers.Items.Add($printerListViewItem) | Out-Null
     }
 
@@ -65,11 +65,12 @@ Function GetInstalledPrinters{
     $InstalledPrinters = Get-WmiObject -Class Win32_Printer | Where-Object { $_.SystemName -match "\\\\" }
     
     # Create a column in the listView for each property
+    # (not adding 'Out-Null' at the end of the line can result in output to the console)
     $listView_InstalledPrinters.Columns.Add("ShareName") | Out-Null
     $listView_InstalledPrinters.Columns.Add("Location") | Out-Null
     $listView_InstalledPrinters.Columns.Add("SystemName") | Out-Null
 
-    # Looping through each object in the array, and add a row for each
+    # Loop through each object in the array, and add a row for each
     ForEach ($InstalledPrinter in $InstalledPrinters){
 
         # Create a listViewItem, and add the printer description
@@ -78,7 +79,6 @@ Function GetInstalledPrinters{
         $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.SystemName)") | Out-Null
 
         # Add the created listViewItem to the ListView control
-        # (not adding 'Out-Null' at the end of the line will result in numbers outputred to the console)
         $listView_InstalledPrinters.Items.Add($installedPrintersListViewItem) | Out-Null
     }
 
@@ -92,37 +92,49 @@ Function InstallPrinters{
     # Compile a list in an array of selected items
     $Selectedprinters = @($listView_Printers.SelectedIndices)
 
-    # Setup Progress Bar values
-    $Counter = 0
-    $progressBarFull = $Selectedprinters.Count
-    [Int]$Percentage = 25
-    $progressBar_InstallPrinters.Value = $Percentage
-    $form_AddPrinters.Refresh()
+    # Warn if no printers have been selected 
+    if ($Selectedprinters.count -lt "1"){
+        [System.Windows.Forms.MessageBox]::Show("No printer(s) have been selected. Please select one or more printers in the list." , "Error",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+    else {
 
-    # Find which column index has an the named printer on it, for the listView control
-    $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
+        # Setup Progress Bar values
+        $Counter = 0
+        $progressBarFull = $Selectedprinters.Count
+        [Int]$Percentage = 25
+        $progressBar_InstallPrinters.Value = $Percentage
+        $form_AddPrinters.Refresh()
 
-    # For each object/item in the array of selected item, find which SubItem/cell of the row...
-    $Selectedprinters | ForEach-Object {
+        # Find which column index has an the named printer on it, for the listView control
+        $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
+
+        # For each object/item in the array of selected item, find which SubItem/cell of the row...
+        $Selectedprinters | ForEach {
     
-        # ...contains the name of the Printer that is currently being "foreach'd",
-        $PrinterName = ($listView_Printers.Items[$_].SubItems[$NameColumnIndex]).Text
+            # ...contains the name of the Printer that is currently being "foreach'd",
+            $PrinterName = ($listView_Printers.Items[$_].SubItems[$NameColumnIndex]).Text
 
-        # Execute The PowerShell Code and Update the Status of the Progress-Bar
-        # Install Printer
-        (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
+            # Install printer and update the status of the progress-bar
+            (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
         
-		## -- Calculate The Percentage Completed
-		$Counter++
-		[Int]$Percentage = ($Counter/$progressBarFull)*100
-		$progressBar_InstallPrinters.Value = $Percentage
-		$form_AddPrinters.Refresh()
-	}
+		    ## -- Calculate The Percentage Completed
+		    $Counter++
+		    [Int]$Percentage = ($Counter/$progressBarFull)*100
+		    $progressBar_InstallPrinters.Value = $Percentage
+		    $form_AddPrinters.Refresh()
+        }
+        # Show "completed" dialog box
+        [System.Windows.Forms.MessageBox]::Show("$($Selectedprinters.count) printer(s) have been installed." , "Done",
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        [System.Windows.Forms.MessageBoxIcon]::Information)
 
-    # Refresh your Printer lists
-    Getprinters
-    GetInstalledPrinters
-    $form_AddPrinters.Refresh()
+        # Refresh your Printer lists
+        Getprinters
+        GetInstalledPrinters
+        $form_AddPrinters.Refresh()
+    }
 }
 
 function SortListView # Eric Siron
@@ -164,7 +176,8 @@ foreach($listItem in $listItems)
 $activeList.EndUpdate()
 }
 
-# Drawing form and controls
+# Begin to draw form
+# Draw form and controls
 $form_AddPrinters = New-Object System.Windows.forms.form
     $form_AddPrinters.Text = "Printer Manager"
     $form_AddPrinters.Size = New-Object System.Drawing.Size(832,690)
@@ -174,7 +187,7 @@ $form_AddPrinters = New-Object System.Windows.forms.form
     $form_AddPrinters.StartPosition = "CenterScreen"
     $form_AddPrinters.Font = "Segoe UI"
 
-# Adding a label control to form
+# Add a label control to form for available printers
 $label_AddPrinters = New-Object System.Windows.forms.Label
     $label_AddPrinters.Location = New-Object System.Drawing.Size(8,8)
     $label_AddPrinters.Size = New-Object System.Drawing.Size(500,32)
@@ -183,7 +196,7 @@ $label_AddPrinters = New-Object System.Windows.forms.Label
 	    ## Add the label to the Form
         $form_AddPrinters.Controls.Add($label_AddPrinters)
 
-# Create Progress-Bar
+# Add a progress-bar to form
 $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
     $progressBar_InstallPrinters.Location = New-Object System.Drawing.Size(608,8)
     $progressBar_InstallPrinters.Size = New-Object System.Drawing.Size(200,24)
@@ -195,7 +208,7 @@ $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
         ## Add the label to the Form
         $form_AddPrinters.Controls.Add($progressBar_InstallPrinters)
 
-# Adding a listView control to form, which will hold available Printer information
+# Add a listView control to form, which will hold available Printer information
 $Global:listView_Printers = New-Object System.Windows.forms.ListView
     $listView_Printers.Location = New-Object System.Drawing.Size(8,40)
     $listView_Printers.Size = New-Object System.Drawing.Size(800,300)
@@ -213,7 +226,7 @@ $Global:listView_Printers = New-Object System.Windows.forms.ListView
     	## Add the listview to the Form
         $form_AddPrinters.Controls.Add($listView_Printers)
 
-# Adding a label control to form
+# Add a label control to form for installed printers
 $label_InstalledPrinters = New-Object System.Windows.forms.Label
     $label_InstalledPrinters.Location = New-Object System.Drawing.Size(8,350)
     $label_InstalledPrinters.Size = New-Object System.Drawing.Size(800,32)
@@ -226,7 +239,7 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
         ## Add the label to the Form
         $form_AddPrinters.Controls.Add($label_InstalledPrinters)
 
-# Adding a second listView control to form, which will hold installed Printer information
+# Add a second listView control to form, which will hold installed Printer information
 $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.Location = New-Object System.Drawing.Size(8,382)
     $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,220)
@@ -244,18 +257,17 @@ $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
         ## Add the listview to the Form
         $form_AddPrinters.Controls.Add($listView_InstalledPrinters)
 
-# Adding a button control to form
-$button_RefreshPrinters = New-Object System.Windows.forms.Button
-    $button_RefreshPrinters.Location = New-Object System.Drawing.Size(8,610)
-    $button_RefreshPrinters.Size = New-Object System.Drawing.Size(240,32)
-    $button_RefreshPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
+# Add a button control to form for Exit
+$button_Exit = New-Object System.Windows.forms.Button
+    $button_Exit.Location = New-Object System.Drawing.Size(8,610)
+    $button_Exit.Size = New-Object System.Drawing.Size(240,32)
+    $button_Exit.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Left
-    $button_RefreshPrinters.TextAlign = "MiddleCenter"
-    $button_RefreshPrinters.Text = "Refresh Printer List"
-    $button_RefreshPrinters.Add_Click({Getprinters})
-    $button_RefreshPrinters.Add_Click({GetInstalledPrinters})
+    $button_Exit.TextAlign = "MiddleCenter"
+    $button_Exit.Text = "Exit"
+    $button_Exit.Add_Click({$form_AddPrinters.Close()})
         # Add the button to the Form
-        $form_AddPrinters.Controls.Add($button_RefreshPrinters)
+        $form_AddPrinters.Controls.Add($button_Exit)
 
 # Adding another button control to form
 $button_InstallPrinters = New-Object System.Windows.forms.Button
