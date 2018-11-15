@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Name:Add-WCUPrinters2.ps1
+  Name:Add-WCUPrinters3.ps1
   Graphical Application. Shows a list of printers from a CSV file and a list of installed printers
   User can pick from the list and install one or multiple printers
 
@@ -8,8 +8,9 @@
   Updated: 2018-10-22
   Author: Richie
   ToDo:
-    1. Decide if we should query remote server or get the list from a CSV
-    2. Sign script
+    1. Sign script?
+    2. Add label or dialog that displays after install
+    3. add double click feature
     
 #>
 # Load required assemblies

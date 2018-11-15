@@ -1,20 +1,26 @@
 <#
 .SYNOPSIS
   Name:Add-WCUPrinters.ps1
-  Graphical Application. Shows a list of printers available on a given server and a list of installed printers
+  Graphical Application. Shows a list of printers from a CSV file and a list of installed printers
   User can pick from the list and install one or multiple printers
 
 .NOTES
-  Updated: 2018-10-22
+  Updated: 2018-11-15 (updated from Add_WCUPrinters3.ps1)
   Author: Richie
   ToDo:
-    1. Decide if we should query remote server or get the list from a CSV
-    2. Sign script
+    1. Sign script?
+    2. Add label that displays after install
     
 #>
 # Load required assemblies
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.forms")
 [System.Windows.forms.Application]::EnableVisualStyles()
+
+# Declarations
+$server = 'printserver.wcu.edu'
+$PrinterListFile = "\\printserver.wcu.edu\Share\Lists\PrinterList.tsv"
+$lastColumnClicked = 0 # tracks the last column number that was clicked
+$lastColumnAscending = $false # tracks the direction of the last sort of this column
 
 # Start Creating Functions
 Function Getprinters{
@@ -23,22 +29,24 @@ Function Getprinters{
     $listView_Printers.Items.Clear()
     $listView_Printers.Columns.Clear()
     
-    # Get a list and create an array of all shared printers
-    $printers = net view \\$server | Where-Object { $_ -match "print"} | ForEach-Object { $_ -replace "\s{2,}","`t"} | ConvertFrom-Csv -Delimiter "`t" -Header Name, Type, Description
+    # Get a list and create an array of all shared printers on server
+    $printers = Import-Csv $PrinterListFile -Delimiter "`t"
 
     # Create a column in the listView for each property
-    $listView_Printers.Columns.Add("Name") | Out-Null
-    $listView_Printers.Columns.Add("Description") | Out-Null
+    $listView_Printers.Columns.Add("ShareName") | Out-Null
+    $listView_Printers.Columns.Add("Location") | Out-Null
+    $listView_Printers.Columns.Add("Comment") | Out-Null
 
     # Looping through each object in the array, and add a row for each
     ForEach ($Printer in $printers){
 
-        # Create a listViewItem, and add the printer description
-        $printerListViewItem = New-Object System.Windows.forms.ListViewItem($printer.Name)
-        $printerListViewItem.SubItems.Add("$($printer.Description)") | Out-Null
+        # Create a listViewItem, and add the printer location and comment
+        $printerListViewItem = New-Object System.Windows.forms.ListViewItem($printer.ShareName)
+        $printerListViewItem.SubItems.Add("$($printer.Location)") | Out-Null
+        $printerListViewItem.SubItems.Add("$($printer.Comment)") | Out-Null
 
         # Add the created listViewItem to the ListView control
-        # (not adding 'Out-Null' at the end of the line will result in numbers outputred to the console)
+        # (not adding 'Out-Null' at the end of the line will result in numbers output to the console)
         $listView_Printers.Items.Add($printerListViewItem) | Out-Null
     }
 
@@ -52,21 +60,21 @@ Function GetInstalledPrinters{
     $listView_InstalledPrinters.Items.Clear()
     $listView_InstalledPrinters.Columns.Clear()
     
-    # Get a list and create an array of all shared printers
-    $InstalledPrinters = Get-Printer | Where-Object { $_.type -eq "Connection" }
+    # Get a list and create an array of all mapped printers
+    $InstalledPrinters = Get-WmiObject -Class Win32_Printer | Where-Object { $_.SystemName -match "\\\\" }
     
     # Create a column in the listView for each property
-    $listView_InstalledPrinters.Columns.Add("Name") | Out-Null
-    $listView_InstalledPrinters.Columns.Add("Description") | Out-Null
-    $listView_InstalledPrinters.Columns.Add("Server") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("ShareName") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("Location") | Out-Null
+    $listView_InstalledPrinters.Columns.Add("SystemName") | Out-Null
 
     # Looping through each object in the array, and add a row for each
     ForEach ($InstalledPrinter in $InstalledPrinters){
 
         # Create a listViewItem, and add the printer description
         $installedPrintersListViewItem = New-Object System.Windows.forms.ListViewItem($InstalledPrinter.ShareName)
-        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.comment)") | Out-Null
-        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.ComputerName)") | Out-Null
+        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.Location)") | Out-Null
+        $installedPrintersListViewItem.SubItems.Add("$($InstalledPrinter.SystemName)") | Out-Null
 
         # Add the created listViewItem to the ListView control
         # (not adding 'Out-Null' at the end of the line will result in numbers outputred to the console)
@@ -91,7 +99,7 @@ Function InstallPrinters{
     $form_AddPrinters.Refresh()
 
     # Find which column index has an the named printer on it, for the listView control
-    $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "Name"}).Index
+    $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
 
     # For each object/item in the array of selected item, find which SubItem/cell of the row...
     $Selectedprinters | ForEach-Object {
@@ -101,7 +109,7 @@ Function InstallPrinters{
 
         # Execute The PowerShell Code and Update the Status of the Progress-Bar
         # Install Printer
-        Add-Printer -ConnectionName \\$server\$PrinterName
+        (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
         
 		## -- Calculate The Percentage Completed
 		$Counter++
@@ -154,10 +162,6 @@ foreach($listItem in $listItems)
 }
 $activeList.EndUpdate()
 }
-
-$server = 'printserver.wcu.edu'
-$lastColumnClicked = 0 # tracks the last column number that was clicked
-$lastColumnAscending = $false # tracks the direction of the last sort of this column
 
 # Drawing form and controls
 $form_AddPrinters = New-Object System.Windows.forms.form
@@ -268,3 +272,4 @@ $button_InstallPrinters = New-Object System.Windows.forms.Button
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetPrinters})
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetInstalledPrinters})
 [Void] $form_AddPrinters.ShowDialog()
+$form_AddPrinters.Refresh()
