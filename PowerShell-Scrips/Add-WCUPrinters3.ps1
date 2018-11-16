@@ -20,11 +20,12 @@
 # Declarations
 $server = 'printserver.wcu.edu'
 $PrinterListFile = "\\printserver.wcu.edu\Share\Lists\PrinterList.tsv"
+$printers = Import-Csv $PrinterListFile -Delimiter "`t"
 $lastColumnClicked = 0 # tracks the last column number that was clicked
 $lastColumnAscending = $false # tracks the direction of the last sort of this column
 
 # Start Creating Functions
-Function Getprinters{
+Function GetPrinters{
 
     # Reset the columns and content of listView_Printers before adding data to it.
     $listView_Printers.Items.Clear()
@@ -51,6 +52,42 @@ Function Getprinters{
         $listView_Printers.Items.Add($printerListViewItem) | Out-Null
     }
 
+    # Resize all columns of the listView to fit their contents
+    $listView_Printers.AutoResizeColumns("HeaderSize")
+}
+
+Function GetFilteredPrinters{
+
+    param([parameter(Position=0)]$filterPrintersText)
+
+    # Check if filterPrinterText is null and call GetPrinters function if it is
+    if(!$filterPrintersText){GetPrinters}
+    else{
+    # Reset the columns and content of listView_Printers before adding data to it.
+    $listView_Printers.Items.Clear()
+    $listView_Printers.Columns.Clear()
+
+    # Get a list and create an array of all shared printers on server
+    $filteredPrinters = $printers | Where-Object {$_.Location -match $filterPrintersText}
+
+    # Create a column in the listView for each property
+    # (not adding 'Out-Null' at the end of the line can result in output to the console)
+    $listView_Printers.Columns.Add("ShareName") | Out-Null
+    $listView_Printers.Columns.Add("Location") | Out-Null
+    $listView_Printers.Columns.Add("Comment") | Out-Null
+
+    # Loop through each object in the array, and add a row for each
+    ForEach ($Printer in $filteredPrinters){
+
+        # Create a listViewItem, and add the printer location and comment
+        $printerListViewItem = New-Object System.Windows.forms.ListViewItem($Printer.ShareName)
+        $printerListViewItem.SubItems.Add("$($Printer.Location)") | Out-Null
+        $printerListViewItem.SubItems.Add("$($Printer.Comment)") | Out-Null
+
+        # Add the created listViewItem to the ListView control
+        $listView_Printers.Items.Add($printerListViewItem) | Out-Null
+        }
+    }
     # Resize all columns of the listView to fit their contents
     $listView_Printers.AutoResizeColumns("HeaderSize")
 }
@@ -131,7 +168,7 @@ Function InstallPrinters{
         [System.Windows.Forms.MessageBoxIcon]::Information)
 
         # Refresh your Printer lists
-        Getprinters
+        GetPrinters
         GetInstalledPrinters
         $form_AddPrinters.Refresh()
     }
@@ -189,28 +226,59 @@ $form_AddPrinters = New-Object System.Windows.forms.form
 
 # Add a label control to form for available printers
 $label_AddPrinters = New-Object System.Windows.forms.Label
-    $label_AddPrinters.Location = New-Object System.Drawing.Size(8,8)
-    $label_AddPrinters.Size = New-Object System.Drawing.Size(500,32)
+    $label_AddPrinters.Location = New-Object System.Drawing.Point(8,8)
+    $label_AddPrinters.Size = New-Object System.Drawing.Size(500,28)
     $label_AddPrinters.TextAlign = "MiddleLeft"
-    $label_AddPrinters.Text = "Please choose the printers you would like to add"
-	    ## Add the label to the Form
+    $label_AddPrinters.Text = "Please choose the printer(s) you would like to add."
+	    ## Add the label to the form
         $form_AddPrinters.Controls.Add($label_AddPrinters)
+
+# Add a label control to form to warn about form becoming non-responsive durring driver install
+$label_Note = New-Object System.Windows.forms.Label
+    $label_Note.Location = New-Object System.Drawing.Point(8,30)
+    $label_Note.Size = New-Object System.Drawing.Size(500,28)
+    $label_Note.TextAlign = "MiddleLeft"
+    $label_Note.Text = "Note: It may take some time to install the first printer because the driver must also be installed."
+	    ## Add the label to the form
+        $form_AddPrinters.Controls.Add($label_Note)
 
 # Add a progress-bar to form
 $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
-    $progressBar_InstallPrinters.Location = New-Object System.Drawing.Size(608,8)
-    $progressBar_InstallPrinters.Size = New-Object System.Drawing.Size(200,24)
+    $progressBar_InstallPrinters.Location = New-Object System.Drawing.Point(608,8)
+    $progressBar_InstallPrinters.Size = New-Object System.Drawing.Size(200,20)
     $progressBar_InstallPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Right -bor 
     [System.Windows.forms.AnchorStyles]::Top
     $progressBar_InstallPrinters.Name = "Adding Printer(s)"
     $progressBar_InstallPrinters.Value = 0
-    $progressBar_InstallPrinters.Style="Continuous"
-        ## Add the label to the Form
+    $progressBar_InstallPrinters.Style = "Continuous"
+        ## Add the label to the form
         $form_AddPrinters.Controls.Add($progressBar_InstallPrinters)
+
+# Add a text box to filter listView_Printers
+$textBox_FilterPrinters = New-Object System.Windows.Forms.TextBox
+    $textBox_FilterPrinters.Location = New-Object System.Drawing.Point(608,32)
+    $textBox_FilterPrinters.Size = New-Object System.Drawing.Size(100,24)
+    $textBox_FilterPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Right -bor 
+    [System.Windows.forms.AnchorStyles]::Top
+    $textBox_FilterPrinters.Add_KeyDown({GetFilteredPrinters $textBox_FilterPrinters.Text})
+        ## Add textBox to form
+        $form_AddPrinters.Controls.Add($textBox_FilterPrinters)
+
+# Add a button to filter on textBox
+$button_FilterPrinters = New-Object System.Windows.forms.Button
+    $button_FilterPrinters.Location = New-Object System.Drawing.Point(710,31)
+    $button_FilterPrinters.Size = New-Object System.Drawing.Size(98,24) 
+    $button_FilterPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Right -bor 
+    [System.Windows.forms.AnchorStyles]::Top
+    $button_FilterPrinters.TextAlign = "MiddleCenter"
+    $button_FilterPrinters.Text = "Filter"
+    $button_FilterPrinters.Add_Click({GetFilteredPrinters $textBox_FilterPrinters.Text})
+        # Add the button to the Form
+        $form_AddPrinters.Controls.Add($button_FilterPrinters)
 
 # Add a listView control to form, which will hold available Printer information
 $Global:listView_Printers = New-Object System.Windows.forms.ListView
-    $listView_Printers.Location = New-Object System.Drawing.Size(8,40)
+    $listView_Printers.Location = New-Object System.Drawing.Point(8,58)
     $listView_Printers.Size = New-Object System.Drawing.Size(800,300)
     $listView_Printers.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
@@ -222,14 +290,15 @@ $Global:listView_Printers = New-Object System.Windows.forms.ListView
     $listView_Printers.Sorting = "None"
     $listView_Printers.AllowColumnReorder = $true
     $listView_Printers.GridLines = $true
+    $listView_Printers.Add_ItemActivate({InstallPrinters})
     $listView_Printers.Add_ColumnClick({SortListView $_.Column $listView_Printers})
     	## Add the listview to the Form
         $form_AddPrinters.Controls.Add($listView_Printers)
 
 # Add a label control to form for installed printers
 $label_InstalledPrinters = New-Object System.Windows.forms.Label
-    $label_InstalledPrinters.Location = New-Object System.Drawing.Size(8,350)
-    $label_InstalledPrinters.Size = New-Object System.Drawing.Size(800,32)
+    $label_InstalledPrinters.Location = New-Object System.Drawing.Point(8,362)
+    $label_InstalledPrinters.Size = New-Object System.Drawing.Size(800,28)
     $label_InstalledPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
     #[System.Windows.forms.AnchorStyles]::Top -bor
@@ -241,15 +310,15 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
 
 # Add a second listView control to form, which will hold installed Printer information
 $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
-    $listView_InstalledPrinters.Location = New-Object System.Drawing.Size(8,382)
-    $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,220)
+    $listView_InstalledPrinters.Location = New-Object System.Drawing.Point(8,390)
+    $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,212)
     $listView_InstalledPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
     #[System.Windows.forms.AnchorStyles]::Top -bor
     [System.Windows.forms.AnchorStyles]::Left
     $listView_InstalledPrinters.View = "Details"
     $listView_InstalledPrinters.FullRowSelect = $true
-    $listView_InstalledPrinters.MultiSelect = $true
+    $listView_InstalledPrinters.MultiSelect = $false
     $listView_InstalledPrinters.Sorting = "None"
     $listView_InstalledPrinters.AllowColumnReorder = $true
     $listView_InstalledPrinters.GridLines = $true
@@ -259,7 +328,7 @@ $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
 
 # Add a button control to form for Exit
 $button_Exit = New-Object System.Windows.forms.Button
-    $button_Exit.Location = New-Object System.Drawing.Size(8,610)
+    $button_Exit.Location = New-Object System.Drawing.Point(8,610)
     $button_Exit.Size = New-Object System.Drawing.Size(240,32)
     $button_Exit.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Left
@@ -269,9 +338,9 @@ $button_Exit = New-Object System.Windows.forms.Button
         # Add the button to the Form
         $form_AddPrinters.Controls.Add($button_Exit)
 
-# Adding another button control to form
+# Add a button to install selected printers
 $button_InstallPrinters = New-Object System.Windows.forms.Button
-    $button_InstallPrinters.Location = New-Object System.Drawing.Size(568,610)
+    $button_InstallPrinters.Location = New-Object System.Drawing.Point(568,610)
     $button_InstallPrinters.Size = New-Object System.Drawing.Size(240,32)
     $button_InstallPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right
