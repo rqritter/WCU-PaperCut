@@ -1,2 +1,3 @@
-\\centronics\Forsyth_B5	\\printserver.wcu.edu\Printer001
-\\centronics.wcu.edu\Forsyth_B5	\\printserver.wcu.edu\Printer002
+OldServer	OldPrinter	NewPrinter
+centronics	Forsyth_B5	Printer001
+centronics	Bird_229	Printer002

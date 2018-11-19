@@ -5,12 +5,10 @@
   User can pick from the list and install one or multiple printers
 
 .NOTES
-  Updated: 2018-10-22
+  Updated: 2018-11-19
   Author: Richie
   ToDo:
     1. Sign script?
-    2. Add label or dialog that displays after install
-    3. add double click feature
     
 #>
 # Load required assemblies
@@ -18,7 +16,7 @@
 [System.Windows.forms.Application]::EnableVisualStyles()
 
 # Declarations
-$server = 'printserver.wcu.edu'
+$server = "printserver.wcu.edu"
 $PrinterListFile = "\\printserver.wcu.edu\Share\Lists\PrinterList.tsv"
 $printers = Import-Csv $PrinterListFile -Delimiter "`t"
 $lastColumnClicked = 0 # tracks the last column number that was clicked
@@ -26,7 +24,6 @@ $lastColumnAscending = $false # tracks the direction of the last sort of this co
 
 # Start Creating Functions
 Function GetPrinters{
-
     # Reset the columns and content of listView_Printers before adding data to it.
     $listView_Printers.Items.Clear()
     $listView_Printers.Columns.Clear()
@@ -41,7 +38,7 @@ Function GetPrinters{
     $listView_Printers.Columns.Add("Comment") | Out-Null
 
     # Loop through each object in the array, and add a row for each
-    ForEach ($Printer in $printers){
+    foreach ($Printer in $printers){
 
         # Create a listViewItem, and add the printer location and comment
         $printerListViewItem = New-Object System.Windows.forms.ListViewItem($printer.ShareName)
@@ -58,34 +55,36 @@ Function GetPrinters{
 
 Function GetFilteredPrinters{
 
-    param([parameter(Position=0)]$filterPrintersText)
+    param ([parameter(Position=0)]$filterPrintersText)
 
     # Check if filterPrinterText is null and call GetPrinters function if it is
-    if(!$filterPrintersText){GetPrinters}
-    else{
-    # Reset the columns and content of listView_Printers before adding data to it.
-    $listView_Printers.Items.Clear()
-    $listView_Printers.Columns.Clear()
+    if (!$filterPrintersText){
+        GetPrinters
+    }
+    else {
+        # Reset the columns and content of listView_Printers before adding data to it.
+        $listView_Printers.Items.Clear()
+        $listView_Printers.Columns.Clear()
 
-    # Get a list and create an array of all shared printers on server
-    $filteredPrinters = $printers | Where-Object {$_.Location -match $filterPrintersText}
+        # Get a list and create an array of all shared printers on server
+        $filteredPrinters = $printers | Where-Object {$_ -match $filterPrintersText}
 
-    # Create a column in the listView for each property
-    # (not adding 'Out-Null' at the end of the line can result in output to the console)
-    $listView_Printers.Columns.Add("ShareName") | Out-Null
-    $listView_Printers.Columns.Add("Location") | Out-Null
-    $listView_Printers.Columns.Add("Comment") | Out-Null
+        # Create a column in the listView for each property
+        # ('Out-Null' is added at the end of the line to prevent output to the console)
+        $listView_Printers.Columns.Add("ShareName") | Out-Null
+        $listView_Printers.Columns.Add("Location") | Out-Null
+        $listView_Printers.Columns.Add("Comment") | Out-Null
 
-    # Loop through each object in the array, and add a row for each
-    ForEach ($Printer in $filteredPrinters){
+        # Loop through each object in the array, and add a row for each
+        ForEach ($Printer in $filteredPrinters){
 
-        # Create a listViewItem, and add the printer location and comment
-        $printerListViewItem = New-Object System.Windows.forms.ListViewItem($Printer.ShareName)
-        $printerListViewItem.SubItems.Add("$($Printer.Location)") | Out-Null
-        $printerListViewItem.SubItems.Add("$($Printer.Comment)") | Out-Null
+            # Create a listViewItem, and add the printer location and comment
+            $printerListViewItem = New-Object System.Windows.forms.ListViewItem($Printer.ShareName)
+            $printerListViewItem.SubItems.Add("$($Printer.Location)") | Out-Null
+            $printerListViewItem.SubItems.Add("$($Printer.Comment)") | Out-Null
 
-        # Add the created listViewItem to the ListView control
-        $listView_Printers.Items.Add($printerListViewItem) | Out-Null
+            # Add the created listViewItem to the ListView control
+            $listView_Printers.Items.Add($printerListViewItem) | Out-Null
         }
     }
     # Resize all columns of the listView to fit their contents
@@ -102,13 +101,13 @@ Function GetInstalledPrinters{
     $InstalledPrinters = Get-WmiObject -Class Win32_Printer | Where-Object { $_.SystemName -match "\\\\" }
     
     # Create a column in the listView for each property
-    # (not adding 'Out-Null' at the end of the line can result in output to the console)
+    # ('Out-Null' is added at the end of the line to prevent output to the console)
     $listView_InstalledPrinters.Columns.Add("ShareName") | Out-Null
     $listView_InstalledPrinters.Columns.Add("Location") | Out-Null
     $listView_InstalledPrinters.Columns.Add("SystemName") | Out-Null
 
     # Loop through each object in the array, and add a row for each
-    ForEach ($InstalledPrinter in $InstalledPrinters){
+    foreach ($InstalledPrinter in $InstalledPrinters){
 
         # Create a listViewItem, and add the printer description
         $installedPrintersListViewItem = New-Object System.Windows.forms.ListViewItem($InstalledPrinter.ShareName)
@@ -125,8 +124,7 @@ Function GetInstalledPrinters{
 
 Function InstallPrinters{
 
-    # Since we allowed 'MultiSelect = $true' on the listView control,
-    # Compile a list in an array of selected items
+    # Since we allowed "MultiSelect = $true" on the listView control, compile a list in an array of selected items
     $Selectedprinters = @($listView_Printers.SelectedIndices)
 
     # Warn if no printers have been selected 
@@ -144,14 +142,16 @@ Function InstallPrinters{
         $progressBar_InstallPrinters.Value = $Percentage
         $form_AddPrinters.Refresh()
 
-        # Find which column index has an the named printer on it, for the listView control
-        $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
+        #Not Needed: Find which column index has an the named printer on it, for the listView control
+        # $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
 
         # For each object/item in the array of selected item, find which SubItem/cell of the row...
-        $Selectedprinters | ForEach {
+        #Simplified: Selectedprinters | foreach {
+        foreach ($Selectedprinter in $Selectedprinters) {
     
             # ...contains the name of the Printer that is currently being "foreach'd",
-            $PrinterName = ($listView_Printers.Items[$_].SubItems[$NameColumnIndex]).Text
+            #Simplified: $PrinterName = ($listView_Printers.Items[$_].SubItems[0]).Text
+            $PrinterName = ($listView_Printers.Items[$Selectedprinter].SubItems[0]).Text
 
             # Install printer and update the status of the progress-bar
             (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
@@ -174,50 +174,49 @@ Function InstallPrinters{
     }
 }
 
-function SortListView # Eric Siron
-# RR - added $activeList parameter to handle multiple lists, removed numeric sorting
-{
-param([parameter(Position=0)][UInt32]$column,
-[parameter(Position=1)][Windows.Forms.ListView]$activeList)
+function SortListView{
+    # Eric Siron
+    # RR - added $activeList parameter to handle multiple lists, removed numeric sorting
+    param([parameter(Position=0)][UInt32]$column,
+    [parameter(Position=1)][Windows.Forms.ListView]$activeList)
 
-# if the user clicked the same column that was clicked last time, reverse its sort order. otherwise, reset for normal ascending sort
-if($Script:LastColumnClicked -eq $column)
-{
-    $Script:LastColumnAscending = -not $Script:LastColumnAscending
-}
-else
-{
-    $Script:LastColumnAscending = $true
-}
-$Script:LastColumnClicked = $column
-$listItems = @(@(@())) # three-dimensional array; column 1 indexes the other columns, column 2 is the value to be sorted on, and column 3 is the System.Windows.Forms.ListViewItem object
+    # if the user clicked the same column that was clicked last time, reverse its sort order. otherwise, reset for normal ascending sort
+    if ($Script:LastColumnClicked -eq $column){
+        $Script:LastColumnAscending = -not $Script:LastColumnAscending
+    }
+    else {
+        $Script:LastColumnAscending = $true
+    }
+
+    $Script:LastColumnClicked = $column
+    # three-dimensional array; column 1 indexes the other columns, column 2 is the value to be sorted on, and column 3 is the System.Windows.Forms.ListViewItem object
+    $listItems = @(@(@()))
  
-foreach($listItem in $activeList.Items)
-{
-    $listItems += ,@($listItem.SubItems[[int]$Column].Text,$listItem)
-}
+    foreach ($listItem in $activeList.Items){
+        $listItems += ,@($listItem.SubItems[[int]$Column].Text,$listItem)
+    }
  
-# create the expression that will be evaluated for sorting
-$EvalExpression = {return [String]$_[0] }
+    # create the expression that will be evaluated for sorting
+    $EvalExpression = {return [String]$_[0] }
  
-# all information is gathered; perform the sort
-$listItems = $listItems | Sort-Object -Property @{Expression=$EvalExpression; Ascending=$Script:LastColumnAscending}
+    # all information is gathered; perform the sort
+    $listItems = $listItems | Sort-Object -Property @{Expression=$EvalExpression; Ascending=$Script:LastColumnAscending}
  
-## the list is sorted; display it in the listview
-$activeList.BeginUpdate()
-$activeList.Items.Clear()
-foreach($listItem in $listItems)
-{
-    $activeList.Items.Add($listItem[1])
-}
-$activeList.EndUpdate()
+    ## the list is sorted; display it in the listview
+    $activeList.BeginUpdate()
+    $activeList.Items.Clear()
+    foreach ($listItem in $listItems)
+        {
+        $activeList.Items.Add($listItem[1])
+        }
+    $activeList.EndUpdate()
 }
 
 # Begin to draw form
 # Draw form and controls
 $form_AddPrinters = New-Object System.Windows.forms.form
     $form_AddPrinters.Text = "Printer Manager"
-    $form_AddPrinters.Size = New-Object System.Drawing.Size(832,690)
+    $form_AddPrinters.Size = New-Object System.Drawing.Size(832,688)
     $form_AddPrinters.MaximizeBox  = $true
     $form_AddPrinters.MinimizeBox  = $true
     $form_AddPrinters.ControlBox = $true
@@ -260,7 +259,7 @@ $textBox_FilterPrinters = New-Object System.Windows.Forms.TextBox
     $textBox_FilterPrinters.Size = New-Object System.Drawing.Size(100,24)
     $textBox_FilterPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Right -bor 
     [System.Windows.forms.AnchorStyles]::Top
-    $textBox_FilterPrinters.Add_KeyDown({GetFilteredPrinters $textBox_FilterPrinters.Text})
+    $textBox_FilterPrinters.Add_KeyUp({GetFilteredPrinters $textBox_FilterPrinters.Text})
         ## Add textBox to form
         $form_AddPrinters.Controls.Add($textBox_FilterPrinters)
 
@@ -311,7 +310,7 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
 # Add a second listView control to form, which will hold installed Printer information
 $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.Location = New-Object System.Drawing.Point(8,390)
-    $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,212)
+    $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,214)
     $listView_InstalledPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
     #[System.Windows.forms.AnchorStyles]::Top -bor
