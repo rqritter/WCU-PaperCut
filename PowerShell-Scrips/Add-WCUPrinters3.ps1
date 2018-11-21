@@ -5,7 +5,8 @@
   User can pick from the list and install one or multiple printers
 
 .NOTES
-  Updated: 2018-11-19
+  Updated: 2018-11-21
+    Added runspace and fake progress so the application does not appear to freeze
   Author: Richie
   ToDo:
     1. Sign script?
@@ -139,7 +140,6 @@ Function InstallPrinters{
         [System.Windows.Forms.MessageBoxIcon]::Warning)
     }
     else {
-
         # Setup Runspace
         $SyncHash = [hashtable]::Synchronized(@{ listView = $listView_Printers; Server = $server; Selectedprinters = $Selectedprinters })
         $Runspace = [runspacefactory]::CreateRunspace()
@@ -171,7 +171,7 @@ Function InstallPrinters{
             $Percentage++
             $progressBar_InstallPrinters.Value = $Percentage
             $form_AddPrinters.Refresh()
-            Start-Sleep -Milliseconds 100
+            Start-Sleep -Milliseconds 200
         }
 
         # Cleanup finished runspace
@@ -234,7 +234,6 @@ function SortListView{
     $activeList.EndUpdate()
 }
 
-# Begin to draw form
 # Draw form and controls
 $form_AddPrinters = New-Object System.Windows.forms.form
     $form_AddPrinters.Text = "Printer Manager"
@@ -272,7 +271,6 @@ $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
     $progressBar_InstallPrinters.Name = "Adding Printer(s)"
     $progressBar_InstallPrinters.Value = 0
     $progressBar_InstallPrinters.Style = "Continuous"
-    # $progressBar_InstallPrinters.Style = "Marquee"
         ## Add the label to the form
         $form_AddPrinters.Controls.Add($progressBar_InstallPrinters)
 
