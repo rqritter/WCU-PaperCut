@@ -196,6 +196,64 @@ Function InstallPrinters{
     }
 }
 
+Function UninstallPrinter{
+
+    # Compile a list in an array of selected items (there should only be one)
+    $Selectedprinter = $listView_InstalledPrinters.SelectedIndices
+
+    # Update progress bar (it is fake, but needed since the interface freezes while we ware waiting on the runspace to finish)
+    $Percentage = 1
+    $progressBar_InstallPrinters.Value = $Percentage
+    $form_AddPrinters.Refresh()
+
+    # Warn if no printers have been selected 
+    if ($Selectedprinter.count -gt "0"){
+        # Setup Runspace
+        $SyncHash = [hashtable]::Synchronized(@{ listView = $listView_InstalledPrinters; Selectedprinter = $Selectedprinter })
+        $Runspace = [runspacefactory]::CreateRunspace()
+        $Runspace.ThreadOptions = "ReuseThread"
+        $Runspace.Open()
+        $Runspace.SessionStateProxy.SetVariable("SyncHash", $SyncHash)
+        $powerShell = [PowerShell]::Create()
+        $powerShell.Runspace = $Runspace
+        [void]$powerShell.AddScript({
+            # Get Printer name
+            $PrinterName = ($SyncHash.listView.Items[$SyncHash.Selectedprinter].SubItems[0]).Text
+            $SystemName = ($SyncHash.listView.Items[$SyncHash.Selectedprinter].SubItems[2]).Text
+
+            # Uninstall printer
+                (New-Object -ComObject WScript.Network).RemovePrinterConnection("$SystemName\$PrinterName")
+        })
+
+        # Invoke runspace
+        $handle = $powerShell.BeginInvoke()
+    
+        # While runspace is not complete, animate the fake progress bar
+        While (-Not $handle.IsCompleted) {
+            if ($Percentage -gt 99) {$Percentage = 1}
+            $Percentage++
+            $progressBar_InstallPrinters.Value = $Percentage
+            $form_AddPrinters.Refresh()
+            Start-Sleep -Milliseconds 200
+        }
+
+        # Cleanup finished runspace
+        $powerShell.EndInvoke($handle)
+        $runspace.Close()
+        $powerShell.Dispose()
+
+        # Set fake progress bar to 100%
+        $progressBar_InstallPrinters.Value = 100
+        $form_AddPrinters.Refresh()
+
+        # Refresh your Printer lists and reset progress bar
+        GetPrinters
+        GetInstalledPrinters
+        $progressBar_InstallPrinters.Value = 0
+        $form_AddPrinters.Refresh()
+    }
+}
+
 function SortListView{
     # Eric Siron
     # RR - added $activeList parameter to handle multiple lists, removed numeric sorting
@@ -323,7 +381,7 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
     [System.Windows.forms.AnchorStyles]::Right -bor 
     [System.Windows.forms.AnchorStyles]::Left
     $label_InstalledPrinters.TextAlign = "MiddleLeft"
-    $label_InstalledPrinters.Text = "Currently installed printers"
+    $label_InstalledPrinters.Text = "Currently installed printers (double-click to uninstall)"
         ## Add the label to the Form
         $form_AddPrinters.Controls.Add($label_InstalledPrinters)
 
@@ -340,6 +398,7 @@ $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.Sorting = "None"
     $listView_InstalledPrinters.AllowColumnReorder = $true
     $listView_InstalledPrinters.GridLines = $true
+    $listView_InstalledPrinters.Add_ItemActivate({UninstallPrinter})
     $listView_InstalledPrinters.Add_ColumnClick({SortListView $_.Column $listView_InstalledPrinters})
         ## Add the listview to the Form
         $form_AddPrinters.Controls.Add($listView_InstalledPrinters)
