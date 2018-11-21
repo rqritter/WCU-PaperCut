@@ -127,6 +127,11 @@ Function InstallPrinters{
     # Since we allowed "MultiSelect = $true" on the listView control, compile a list in an array of selected items
     $Selectedprinters = @($listView_Printers.SelectedIndices)
 
+    # Update progress bar (it is fake, but needed since the interface freezes while we ware waiting on the runspace to finish)
+    $Percentage = 1
+    $progressBar_InstallPrinters.Value = $Percentage
+    $form_AddPrinters.Refresh()
+
     # Warn if no printers have been selected 
     if ($Selectedprinters.count -lt "1"){
         [System.Windows.Forms.MessageBox]::Show("No printer(s) have been selected. Please select one or more printers in the list." , "Error",
@@ -135,41 +140,58 @@ Function InstallPrinters{
     }
     else {
 
-        # Setup Progress Bar values
-        $Counter = 0
-        $progressBarFull = $Selectedprinters.Count
-        [Int]$Percentage = 25
-        $progressBar_InstallPrinters.Value = $Percentage
+        # Setup Runspace
+        $SyncHash = [hashtable]::Synchronized(@{ listView = $listView_Printers; Server = $server; Selectedprinters = $Selectedprinters })
+        $Runspace = [runspacefactory]::CreateRunspace()
+        $Runspace.ThreadOptions = "ReuseThread"
+        $Runspace.Open()
+        $Runspace.SessionStateProxy.SetVariable("SyncHash", $SyncHash)
+        $powerShell = [PowerShell]::Create()
+        $powerShell.Runspace = $Runspace
+        [void]$powerShell.AddScript({
+        
+            # For each object/item in the array of selected item, find which SubItem/cell of the row...
+            foreach ($Selectedprinter in $SyncHash.Selectedprinters) {
+    
+                # ...contains the name of the Printer that is currently being "foreach'd",
+                $PrinterName = ($SyncHash.listView.Items[$Selectedprinter].SubItems[0]).Text
+
+                # Install printer and update the status of the progress-bar
+                (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$($SyncHash.Server)\$PrinterName")
+        
+            }
+        })
+
+        # Invoke runspace
+        $handle = $powerShell.BeginInvoke()
+    
+        # While runspace is not complete, animate the fake progress bar
+        While (-Not $handle.IsCompleted) {
+            if ($Percentage -gt 99) {$Percentage = 1}
+            $Percentage++
+            $progressBar_InstallPrinters.Value = $Percentage
+            $form_AddPrinters.Refresh()
+            Start-Sleep -Milliseconds 100
+        }
+
+        # Cleanup finished runspace
+        $powerShell.EndInvoke($handle)
+        $runspace.Close()
+        $powerShell.Dispose()
+
+        # Set fake progress bar to 100%
+        $progressBar_InstallPrinters.Value = 100
         $form_AddPrinters.Refresh()
 
-        #Not Needed: Find which column index has an the named printer on it, for the listView control
-        # $NameColumnIndex = ($listView_Printers.Columns | Where-Object {$_.Text -eq "ShareName"}).Index
-
-        # For each object/item in the array of selected item, find which SubItem/cell of the row...
-        #Simplified: Selectedprinters | foreach {
-        foreach ($Selectedprinter in $Selectedprinters) {
-    
-            # ...contains the name of the Printer that is currently being "foreach'd",
-            #Simplified: $PrinterName = ($listView_Printers.Items[$_].SubItems[0]).Text
-            $PrinterName = ($listView_Printers.Items[$Selectedprinter].SubItems[0]).Text
-
-            # Install printer and update the status of the progress-bar
-            (New-Object -ComObject WScript.Network).AddWindowsPrinterConnection("\\$server\$PrinterName")
-        
-		    ## -- Calculate The Percentage Completed
-		    $Counter++
-		    [Int]$Percentage = ($Counter/$progressBarFull)*100
-		    $progressBar_InstallPrinters.Value = $Percentage
-		    $form_AddPrinters.Refresh()
-        }
         # Show "completed" dialog box
         [System.Windows.Forms.MessageBox]::Show("$($Selectedprinters.count) printer(s) have been installed." , "Done",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Information)
 
-        # Refresh your Printer lists
+        # Refresh your Printer lists and reset progress bar
         GetPrinters
         GetInstalledPrinters
+        $progressBar_InstallPrinters.Value = 0
         $form_AddPrinters.Refresh()
     }
 }
@@ -250,6 +272,7 @@ $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
     $progressBar_InstallPrinters.Name = "Adding Printer(s)"
     $progressBar_InstallPrinters.Value = 0
     $progressBar_InstallPrinters.Style = "Continuous"
+    # $progressBar_InstallPrinters.Style = "Marquee"
         ## Add the label to the form
         $form_AddPrinters.Controls.Add($progressBar_InstallPrinters)
 
@@ -300,7 +323,6 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
     $label_InstalledPrinters.Size = New-Object System.Drawing.Size(800,28)
     $label_InstalledPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
-    #[System.Windows.forms.AnchorStyles]::Top -bor
     [System.Windows.forms.AnchorStyles]::Left
     $label_InstalledPrinters.TextAlign = "MiddleLeft"
     $label_InstalledPrinters.Text = "Currently installed printers"
@@ -313,7 +335,6 @@ $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,214)
     $listView_InstalledPrinters.Anchor = [System.Windows.forms.AnchorStyles]::Bottom -bor
     [System.Windows.forms.AnchorStyles]::Right -bor 
-    #[System.Windows.forms.AnchorStyles]::Top -bor
     [System.Windows.forms.AnchorStyles]::Left
     $listView_InstalledPrinters.View = "Details"
     $listView_InstalledPrinters.FullRowSelect = $true
