@@ -167,8 +167,11 @@ Function InstallPrinters{
     
         # While runspace is not complete, animate the fake progress bar
         While (-Not $handle.IsCompleted) {
+            # Restart progress bar if it goes over over 99%
             if ($Percentage -gt 99) {$Percentage = 1}
             $Percentage++
+            # Fake progress bar is over 50%. slow it down
+            if ($Percentage -gt 50) {Start-Sleep -Milliseconds 200}
             $progressBar_InstallPrinters.Value = $Percentage
             $form_AddPrinters.Refresh()
             Start-Sleep -Milliseconds 200
@@ -198,51 +201,24 @@ Function InstallPrinters{
 
 Function UninstallPrinter{
 
-    # Compile a list in an array of selected items (there should only be one)
+    # Find the index for the selected item from the listView
     $Selectedprinter = $listView_InstalledPrinters.SelectedIndices
 
-    # Update progress bar (it is fake, but needed since the interface freezes while we ware waiting on the runspace to finish)
+    # Update progress bar
     $Percentage = 1
     $progressBar_InstallPrinters.Value = $Percentage
     $form_AddPrinters.Refresh()
 
-    # Warn if no printers have been selected 
+    # Make sure we have a printer selected to act on
     if ($Selectedprinter.count -gt "0"){
-        # Setup Runspace
-        $SyncHash = [hashtable]::Synchronized(@{ listView = $listView_InstalledPrinters; Selectedprinter = $Selectedprinter })
-        $Runspace = [runspacefactory]::CreateRunspace()
-        $Runspace.ThreadOptions = "ReuseThread"
-        $Runspace.Open()
-        $Runspace.SessionStateProxy.SetVariable("SyncHash", $SyncHash)
-        $powerShell = [PowerShell]::Create()
-        $powerShell.Runspace = $Runspace
-        [void]$powerShell.AddScript({
-            # Get Printer name
-            $PrinterName = ($SyncHash.listView.Items[$SyncHash.Selectedprinter].SubItems[0]).Text
-            $SystemName = ($SyncHash.listView.Items[$SyncHash.Selectedprinter].SubItems[2]).Text
+        # Get Printer name and server name for selected item
+        $PrinterName = ($listView_InstalledPrinters.Items[$Selectedprinter].SubItems[0]).Text
+        $SystemName = ($listView_InstalledPrinters.Items[$Selectedprinter].SubItems[2]).Text
 
-            # Uninstall printer
-                (New-Object -ComObject WScript.Network).RemovePrinterConnection("$SystemName\$PrinterName")
-        })
+        # Uninstall printer
+        (New-Object -ComObject WScript.Network).RemovePrinterConnection("$SystemName\$PrinterName")
 
-        # Invoke runspace
-        $handle = $powerShell.BeginInvoke()
-    
-        # While runspace is not complete, animate the fake progress bar
-        While (-Not $handle.IsCompleted) {
-            if ($Percentage -gt 99) {$Percentage = 1}
-            $Percentage++
-            $progressBar_InstallPrinters.Value = $Percentage
-            $form_AddPrinters.Refresh()
-            Start-Sleep -Milliseconds 200
-        }
-
-        # Cleanup finished runspace
-        $powerShell.EndInvoke($handle)
-        $runspace.Close()
-        $powerShell.Dispose()
-
-        # Set fake progress bar to 100%
+        # Set progress bar to 100%
         $progressBar_InstallPrinters.Value = 100
         $form_AddPrinters.Refresh()
 
