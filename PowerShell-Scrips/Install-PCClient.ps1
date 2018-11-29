@@ -13,7 +13,7 @@
 
 $InstallerFolder = "\\printserver.wcu.edu\share\clients\win"
 $InstallerFile = "$($installerFolder)\pc-client-admin-deploy.msi"
-$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe" /silent'
+$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe"'
 $MSIArguments = @(
     "/i"
     $InstallerFile
