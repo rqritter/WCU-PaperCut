@@ -5,7 +5,7 @@
   User can pick from the list and install one or multiple printers
 
 .NOTES
-  Updated: 2018-11-21
+  Updated: 2018-11-29
     Added runspace and fake progress so the application does not appear to freeze
   Author: Richie
   ToDo:
@@ -223,13 +223,13 @@ Function UninstallPrinter{
         # Set progress bar to 100%
         $progressBar_InstallPrinters.Value = 100
         $form_AddPrinters.Refresh()
-
-        # Refresh your Printer lists and reset progress bar
-        GetPrinters
-        GetInstalledPrinters
-        $progressBar_InstallPrinters.Value = 0
-        $form_AddPrinters.Refresh()
     }
+
+    # Refresh your Printer lists and reset progress bar
+    GetPrinters
+    GetInstalledPrinters
+    $progressBar_InstallPrinters.Value = 0
+    $form_AddPrinters.Refresh()
 }
 
 function SortListView{
@@ -286,6 +286,7 @@ $label_AddPrinters = New-Object System.Windows.forms.Label
     $label_AddPrinters.Size = New-Object System.Drawing.Size(500,28)
     $label_AddPrinters.TextAlign = "MiddleLeft"
     $label_AddPrinters.Text = "Please choose the printer(s) you would like to add."
+    $label_AddPrinters.Font = New-Object System.Drawing.Font("Segoe UI",8,[System.Drawing.FontStyle]::Bold)
 	    ## Add the label to form
         $form_AddPrinters.Controls.Add($label_AddPrinters)
 
