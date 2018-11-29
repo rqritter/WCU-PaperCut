@@ -11,10 +11,10 @@ function printJobHook(inputs, actions) {
   actions.job.chargeToPersonalAccount();
   
   // The list of printer tiers with a printer using each.
-  var tierOne_Printer = "printserver.wcu.edu\\Printer001";
-  var tierTwo_Printer = "printserver.wcu.edu\\Printer002";
-  var tierThree_Printer = "printserver.wcu.edu\\Printer003";
-  var tierFour_Printer = "printserver.wcu.edu\\Printer004";
+  var tierOne_Printer = "printserver.wcu.edu\\Tier001";
+  var tierTwo_Printer = "printserver.wcu.edu\\Tier002";
+  var tierThree_Printer = "printserver.wcu.edu\\Tier003";
+  var tierFour_Printer = "printserver.wcu.edu\\Tier004";
   
   // Calculate the cost for each printer tier.
   var tierOne_Cost = inputs.job.calculateCostForPrinter(tierOne_Printer);
@@ -48,7 +48,7 @@ function printJobHook(inputs, actions) {
     + "Tier 4 Printers -------- " + inputs.utils.formatCost(tierFour_Cost)
     + "<br><br>"
     + "You can view a list of printers and tiers "
-    + "<a href=\"https://www.wcu.edu/learn/academic-services/it/paw-print-services/paw-print-faqs/pricing-and-printer-tiers.aspx\">here</a></div>"
+    + "<a href=\"https://www.wcu.edu/learn/academic-services/it/paw-print-services/pawprint-2019upgrade.aspx#UpdatedPricing\">here</a></div>"
     + "</html>", options);
   
   if (response == "PRINT" || response == "TIMEOUT") {
@@ -60,3 +60,4 @@ function printJobHook(inputs, actions) {
     actions.job.cancel();
   }
 }
+
