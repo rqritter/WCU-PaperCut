@@ -167,9 +167,11 @@ Function InstallPrinters{
     
         # While runspace is not complete, animate the fake progress bar
         While (-Not $handle.IsCompleted) {
+
             # Restart progress bar if it goes over over 99%
             if ($Percentage -gt 99) {$Percentage = 1}
             $Percentage++
+
             # Fake progress bar is over 50%. slow it down
             if ($Percentage -gt 50) {Start-Sleep -Milliseconds 200}
             $progressBar_InstallPrinters.Value = $Percentage
@@ -190,13 +192,13 @@ Function InstallPrinters{
         [System.Windows.Forms.MessageBox]::Show("$($Selectedprinters.count) printer(s) have been installed." , "Done",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Information)
-
-        # Refresh your Printer lists and reset progress bar
-        GetPrinters
-        GetInstalledPrinters
-        $progressBar_InstallPrinters.Value = 0
-        $form_AddPrinters.Refresh()
     }
+
+    # Refresh your Printer lists and reset progress bar
+    GetPrinters
+    GetInstalledPrinters
+    $progressBar_InstallPrinters.Value = 0
+    $form_AddPrinters.Refresh()
 }
 
 Function UninstallPrinter{
@@ -278,25 +280,25 @@ $form_AddPrinters = New-Object System.Windows.forms.form
     $form_AddPrinters.StartPosition = "CenterScreen"
     $form_AddPrinters.Font = "Segoe UI"
 
-# Add a label control to form for available printers
+# Create a label control for available printers
 $label_AddPrinters = New-Object System.Windows.forms.Label
     $label_AddPrinters.Location = New-Object System.Drawing.Point(8,8)
     $label_AddPrinters.Size = New-Object System.Drawing.Size(500,28)
     $label_AddPrinters.TextAlign = "MiddleLeft"
     $label_AddPrinters.Text = "Please choose the printer(s) you would like to add."
-	    ## Add the label to the form
+	    ## Add the label to form
         $form_AddPrinters.Controls.Add($label_AddPrinters)
 
-# Add a label control to form to warn about form becoming non-responsive durring driver install
+# Create a label control to warn about form becoming non-responsive durring driver install
 $label_Note = New-Object System.Windows.forms.Label
     $label_Note.Location = New-Object System.Drawing.Point(8,30)
     $label_Note.Size = New-Object System.Drawing.Size(500,28)
     $label_Note.TextAlign = "MiddleLeft"
     $label_Note.Text = "Note: It may take some time to install the first printer because the driver must also be installed."
-	    ## Add the label to the form
+	    ## Add the label to form
         $form_AddPrinters.Controls.Add($label_Note)
 
-# Add a progress-bar to form
+# Create a progress-bar
 $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
     $progressBar_InstallPrinters.Location = New-Object System.Drawing.Point(608,8)
     $progressBar_InstallPrinters.Size = New-Object System.Drawing.Size(200,20)
@@ -305,10 +307,10 @@ $progressBar_InstallPrinters = New-Object System.Windows.Forms.ProgressBar
     $progressBar_InstallPrinters.Name = "Adding Printer(s)"
     $progressBar_InstallPrinters.Value = 0
     $progressBar_InstallPrinters.Style = "Continuous"
-        ## Add the label to the form
+        ## Add the progress-bar to form
         $form_AddPrinters.Controls.Add($progressBar_InstallPrinters)
 
-# Add a text box to filter listView_Printers
+# Create a text box to filter listView_Printers
 $textBox_FilterPrinters = New-Object System.Windows.Forms.TextBox
     $textBox_FilterPrinters.Location = New-Object System.Drawing.Point(608,32)
     $textBox_FilterPrinters.Size = New-Object System.Drawing.Size(100,24)
@@ -318,7 +320,7 @@ $textBox_FilterPrinters = New-Object System.Windows.Forms.TextBox
         ## Add textBox to form
         $form_AddPrinters.Controls.Add($textBox_FilterPrinters)
 
-# Add a button to filter on textBox
+# Create a button to filter on textBox
 $button_FilterPrinters = New-Object System.Windows.forms.Button
     $button_FilterPrinters.Location = New-Object System.Drawing.Point(710,31)
     $button_FilterPrinters.Size = New-Object System.Drawing.Size(98,24) 
@@ -327,10 +329,10 @@ $button_FilterPrinters = New-Object System.Windows.forms.Button
     $button_FilterPrinters.TextAlign = "MiddleCenter"
     $button_FilterPrinters.Text = "Filter"
     $button_FilterPrinters.Add_Click({GetFilteredPrinters $textBox_FilterPrinters.Text})
-        # Add the button to the Form
+        # Add the button to form
         $form_AddPrinters.Controls.Add($button_FilterPrinters)
 
-# Add a listView control to form, which will hold available Printer information
+# Create a listView control to hold available Printer information
 $Global:listView_Printers = New-Object System.Windows.forms.ListView
     $listView_Printers.Location = New-Object System.Drawing.Point(8,58)
     $listView_Printers.Size = New-Object System.Drawing.Size(800,300)
@@ -346,10 +348,10 @@ $Global:listView_Printers = New-Object System.Windows.forms.ListView
     $listView_Printers.GridLines = $true
     $listView_Printers.Add_ItemActivate({InstallPrinters})
     $listView_Printers.Add_ColumnClick({SortListView $_.Column $listView_Printers})
-    	## Add the listview to the Form
+    	## Add the listview to form
         $form_AddPrinters.Controls.Add($listView_Printers)
 
-# Add a label control to form for installed printers
+# Create a label control for installed printers
 $label_InstalledPrinters = New-Object System.Windows.forms.Label
     $label_InstalledPrinters.Location = New-Object System.Drawing.Point(8,362)
     $label_InstalledPrinters.Size = New-Object System.Drawing.Size(800,28)
@@ -358,10 +360,10 @@ $label_InstalledPrinters = New-Object System.Windows.forms.Label
     [System.Windows.forms.AnchorStyles]::Left
     $label_InstalledPrinters.TextAlign = "MiddleLeft"
     $label_InstalledPrinters.Text = "Currently installed printers (double-click to uninstall)"
-        ## Add the label to the Form
+        ## Add the label form
         $form_AddPrinters.Controls.Add($label_InstalledPrinters)
 
-# Add a second listView control to form, which will hold installed Printer information
+# Create a second listView control to hold installed Printer information
 $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.Location = New-Object System.Drawing.Point(8,390)
     $listView_InstalledPrinters.Size = New-Object System.Drawing.Size(800,214)
@@ -376,10 +378,10 @@ $Global:listView_InstalledPrinters = New-Object System.Windows.forms.ListView
     $listView_InstalledPrinters.GridLines = $true
     $listView_InstalledPrinters.Add_ItemActivate({UninstallPrinter})
     $listView_InstalledPrinters.Add_ColumnClick({SortListView $_.Column $listView_InstalledPrinters})
-        ## Add the listview to the Form
+        ## Add the listview to form
         $form_AddPrinters.Controls.Add($listView_InstalledPrinters)
 
-# Add a button control to form for Exit
+# Create a button control for exiting the form
 $button_Exit = New-Object System.Windows.forms.Button
     $button_Exit.Location = New-Object System.Drawing.Point(8,610)
     $button_Exit.Size = New-Object System.Drawing.Size(240,32)
@@ -388,10 +390,10 @@ $button_Exit = New-Object System.Windows.forms.Button
     $button_Exit.TextAlign = "MiddleCenter"
     $button_Exit.Text = "Exit"
     $button_Exit.Add_Click({$form_AddPrinters.Close()})
-        # Add the button to the Form
+        # Add the button to form
         $form_AddPrinters.Controls.Add($button_Exit)
 
-# Add a button to install selected printers
+# Create a button to install selected printers
 $button_InstallPrinters = New-Object System.Windows.forms.Button
     $button_InstallPrinters.Location = New-Object System.Drawing.Point(568,610)
     $button_InstallPrinters.Size = New-Object System.Drawing.Size(240,32)
@@ -403,7 +405,7 @@ $button_InstallPrinters = New-Object System.Windows.forms.Button
         ## Add the button to the Form
         $form_AddPrinters.Controls.Add($button_InstallPrinters)
 
-# Show form with all of its controls
+# Add printer information, then show populated form
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetPrinters})
 $form_AddPrinters.Add_Shown({$form_AddPrinters.Activate();GetInstalledPrinters})
 [Void] $form_AddPrinters.ShowDialog()
