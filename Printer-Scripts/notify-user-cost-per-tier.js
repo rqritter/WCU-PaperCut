@@ -1,14 +1,22 @@
 /*
-* Notify the user of the job cost on different tiers
+* Notify the user of the job cost on different tiers.
+* If the user is a student, 
 */
 function printJobHook(inputs, actions) {
-  // Hold the job until analysis is complete 
+
+  // Charge to personal account while analysing document. (prevents client popup)
   if (!inputs.job.isAnalysisComplete) { 
     actions.job.chargeToPersonalAccount();
     return;
   }
-  // Bypass prompt for release queues by setting to personal printing  
-  actions.job.chargeToPersonalAccount();
+
+  // If user is in the "Student_Currently_Enrolled" AD group... 
+  var groupName = "Student_Currently_Enrolled";
+  if (inputs.user.isInGroup(groupName)) {
+
+    // Bypass prompt for release queues by charging the job to personal account (not sure we need to do this. students should already be using personal accounts)
+    actions.job.chargeToPersonalAccount();
+  }
   
   // The list of printer tiers with a printer using each.
   var tierOne_Printer = "printserver.wcu.edu\\Tier001";
@@ -31,11 +39,12 @@ function printJobHook(inputs, actions) {
   // Set the pop-up message options
   
   var options =  {
+    'fastResponse': true,
     'hideJobDetails' : true,
-    'dialogTitle': 'Printer Tiers',
-    'dialogDesc': 'Please pay attention to your printer tier',
+    'dialogTitle': "Printer Tiers",
+    'dialogDesc': "Please pay attention to your printer tier",
     'timeoutSecs' : 60,
-    'questionID' : 'Prompt1'
+    'questionID' : "Prompt1"
   };
   
   var response = actions.client.promptPrintCancel(
@@ -51,13 +60,16 @@ function printJobHook(inputs, actions) {
     + "<a href=\"https://www.wcu.edu/learn/academic-services/it/paw-print-services/pawprint-2019upgrade.aspx#UpdatedPricing\">here</a></div>"
     + "</html>", options);
   
+  // If user selects "Print" or the job times out...
   if (response == "PRINT" || response == "TIMEOUT") {
-    // Continue with the job.
+    // Continue with job
   }
   
+  // If user selects "Cancel"...
   if (response == "CANCEL") {
-    // Cancel the job
+    // Cancel the job.
     actions.job.cancel();
+    return;
   }
 }
 
