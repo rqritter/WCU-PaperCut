@@ -31,7 +31,7 @@ $xaml = @"
             <ListView.View>
                 <GridView>
                 <GridViewColumn Width="150" Header="ShareName" DisplayMemberBinding="{Binding ShareName}"/> 
-                <GridViewColumn Width="150" Header="Location" DisplayMemberBinding="{Binding Location}"/> 
+                <GridViewColumn Width="175" Header="Location" DisplayMemberBinding="{Binding Location}"/> 
                 <GridViewColumn Width="400" Header="Comment" DisplayMemberBinding="{Binding Comment}"/> 
                 </GridView>
             </ListView.View>
@@ -40,7 +40,7 @@ $xaml = @"
             <ListView.View>
                 <GridView>
                 <GridViewColumn Width="150" Header="ShareName" DisplayMemberBinding="{Binding ShareName}"/> 
-                <GridViewColumn Width="150" Header="Location" DisplayMemberBinding="{Binding Location}"/> 
+                <GridViewColumn Width="175" Header="Location" DisplayMemberBinding="{Binding Location}"/> 
                 <GridViewColumn Width="400" Header="SystemName" DisplayMemberBinding="{Binding SystemName}"/> 
                 </GridView>
             </ListView.View>

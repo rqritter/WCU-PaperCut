@@ -12,6 +12,7 @@ function printJobHook(inputs, actions) {
 
   // If user is in the "Student_Currently_Enrolled" AD group... 
   var groupName = "Student_Currently_Enrolled";
+  // var groupName = "Worker";
   if (inputs.user.isInGroup(groupName)) {
 
     // Bypass prompt for release queues by charging the job to personal account (not sure we need to do this. students should already be using personal accounts)
@@ -35,7 +36,18 @@ function printJobHook(inputs, actions) {
   actions.log.debug("Cost for: " + tierThree_Printer + " is: " + inputs.utils.formatCost(tierThree_Printer));
   actions.log.debug("Cost for: " + tierFour_Printer + " is: " + inputs.utils.formatCost(tierFour_Printer));
   
+  // Get the user's personal balance
+  var balance = inputs.user.balance;
+
   // Notify user of the cost for each tier.
+  // Generate warning if user is a student and balance is lower than some calculated costs
+  if (inputs.user.isInGroup(groupName) && tierTwo_Cost > balance) {
+    var warningMessage = "<br><br><b>Warning!</b> Your print job will fail if released on tier 1 or tier 2 printers because your available balance is less than " + inputs.utils.formatCost(tierTwo_Cost);
+  } else if (inputs.user.isInGroup(groupName) && tierOne_Cost > balance) {
+    var warningMessage = "<br><br><b>Warning!</b> Your print job will fail if released on tier 1 printers because your available balance is less than " + inputs.utils.formatCost(tierOne_Cost);
+  } else { var warningMessage = "<br>";
+  }
+
   // Set the pop-up message options
   
   var options =  {
@@ -47,9 +59,13 @@ function printJobHook(inputs, actions) {
     'questionID' : "Prompt1"
   };
   
+  // Pop-up for student printing
   var response = actions.client.promptPrintCancel(
     "<html>"
-    + "<div style='text-align: center; font: 12px'><b>Attention!</b> Your print job will have different costs depending on the tier of the printer where it is released"
+    + "<div style='text-align: center; font: 12px'>"
+    + "CatCash balance: " + inputs.utils.formatCost(balance)
+    + "<br><br>"
+    + "<b>Attention!</b> Your print job will have different costs depending on the tier of the printer where it is released."
     + "<br><br>"
     + "Tier 1 Printers -------- " + inputs.utils.formatCost(tierOne_Cost) + "<br>"
     + "Tier 2 Printers -------- " + inputs.utils.formatCost(tierTwo_Cost) + "<br>"
@@ -57,8 +73,9 @@ function printJobHook(inputs, actions) {
     + "Tier 4 Printers -------- " + inputs.utils.formatCost(tierFour_Cost)
     + "<br><br>"
     + "You can view a list of printers and tiers "
-    + "<a href=\"https://www.wcu.edu/learn/academic-services/it/paw-print-services/pawprint-2019upgrade.aspx#UpdatedPricing\">here</a></div>"
-    + "</html>", options);
+    + "<a href=\"https://www.wcu.edu/learn/academic-services/it/paw-print-services/pawprint-2019upgrade.aspx#UpdatedPricing\">here</a>"
+    + "<span style='color:red'>" + warningMessage + "</span>"
+    + "</div></html>", options);
   
   // If user selects "Print" or the job times out...
   if (response == "PRINT" || response == "TIMEOUT") {
