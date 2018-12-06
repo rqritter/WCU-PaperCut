@@ -10,7 +10,7 @@ function printJobHook(inputs, actions) {
     actions.job.chargeToPersonalAccount();
     return;
   }
-  
+ 
   // Set the pop-up message options
   var message = "";
   var deptCopyCard;
@@ -24,11 +24,25 @@ function printJobHook(inputs, actions) {
   };
   
   // Prompt for Copy Card
-  deptCopyCard = actions.client.promptForText(message, options);
-  if (deptCopyCard == "CANCEL" || deptCopyCard == "TIMEOUT") {
+  var exampleCard = '81122334455';
+  deptCopyCard = actions.client.promptForText(
+    "<html>"
+    + "<div style='text-align: center; font: 12px'>"
+    + "Please enter the code from your Department Copy Card"
+    + "<br><br>"
+    + "<img height='208' width='320' src='http://%PC_SERVER%/custom/card.gif' />"
+    + "<br>Example"
+    + "</div></html>", options);
+  
+    if (deptCopyCard == "CANCEL" || deptCopyCard == "TIMEOUT") {
     // user canceled the dialog, took too long to answer or entered nothing
     actions.client.sendMessage("No valid Departmental Copy Card entered or job was cancelled. A valid card is required to print to this queue.");
     actions.job.addComment("No valid departmental copy card entered");
+    actions.job.cancel();
+    return;
+  } else if (deptCopyCard == exampleCard) {
+    // user entered the example card number
+    actions.client.sendMessage("Please do not use the example card number. Job has been cancelled");
     actions.job.cancel();
     return;
   }
