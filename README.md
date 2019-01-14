@@ -6,30 +6,30 @@
 
 ### Contents
 - [PaperCut Installation Settings for WCU](#papercut-installation-settings-for-wcu)
-        - [Notes](#notes)
-        - [Contents](#contents)
-    - [1. PaperCut Application Server](#1-papercut-application-server)
-        - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
-            - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
-            - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
-        - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
-            - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
-    - [2. Secondary Print Servers](#2-secondary-print-servers)
-        - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
-            - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
-        - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
-            - [PowerShell commands](#powershell-commands)
-            - [Detail of registry changes](#detail-of-registry-changes)
-        - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
-    - [3. Mobility Print Server](#3-mobility-print-server)
-        - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
-            - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
-    - [4. Web Print Sandbox Server](#4-web-print-sandbox-server)
-        - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files-1)
-            - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf-1)
-    - [5. RightFax Server](#5-rightfax-server)
-        - [Changes to Applcation Server configuration](#changes-to-applcation-server-configuration)
-            - [Detail](#detail)
+    - [Notes](#notes)
+    - [Contents](#contents)
+  - [1. PaperCut Application Server](#1-papercut-application-server)
+    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files)
+      - [C:\Program Files\PaperCut MF\server\server.properties](#cprogram-filespapercut-mfserverserverproperties)
+      - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
+    - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
+      - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
+  - [2. Secondary Print Servers](#2-secondary-print-servers)
+    - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
+      - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
+    - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
+      - [PowerShell commands](#powershell-commands)
+      - [Detail of registry changes](#detail-of-registry-changes)
+    - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
+  - [3. Mobility Print Server](#3-mobility-print-server)
+    - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
+      - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
+  - [4. Web Print Sandbox Server](#4-web-print-sandbox-server)
+    - [Changes to Applcation Server configuration files](#changes-to-applcation-server-configuration-files-1)
+      - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf-1)
+  - [5. RightFax Server](#5-rightfax-server)
+    - [Changes to Applcation Server configuration](#changes-to-applcation-server-configuration)
+      - [Detail](#detail)
 
 ## 1. PaperCut Application Server
 - MS failover Cluster named `papercut.wcu.edu`  
@@ -142,10 +142,10 @@
   `Multi-String Value: OptionalNames = printserver`
 
 ### Modify the local hosts file of the servers
-  - Add the LOCAL SERVER IP Address with cluster name and FQDN to the hosts file
+  - Add the **LOCAL SERVER IP** Address with cluster name and FQDN to the hosts file
     ```
-    152.30.35.1     printserver.wcu.edu
-    152.30.35.1     printserver
+    152.30.35.XX     printserver.wcu.edu
+    152.30.35.XX     printserver
     ```
 
 ## 3. Mobility Print Server
