@@ -18,8 +18,8 @@
         - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
             - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
         - [Registry changes to enable Print Server clustering](#registry-changes-to-enable-print-server-clustering)
-            - [PowerShell for changes](#powershell-for-changes)
-            - [Detailed registry changes](#detailed-registry-changes)
+            - [PowerShell commands](#powershell-commands)
+            - [Detail of registry changes](#detail-of-registry-changes)
         - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
     - [3. Mobility Print Server](#3-mobility-print-server)
         - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
@@ -119,7 +119,7 @@
 
 ### Registry changes to enable Print Server clustering
 
-#### PowerShell for changes
+#### PowerShell commands
   - Run in an elevated PowerShell session
     ```
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Print -Name DnsOnWire -PropertyType DWord -Value 1
@@ -128,7 +128,7 @@
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
     ```
-#### Detailed registry changes
+#### Detail of registry changes
 
 - HKLM\SYSTEM\CurrentControlSet\Control\Print  
   `DWORD: DnsOnWire = 1`
