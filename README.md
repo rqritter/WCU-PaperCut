@@ -111,9 +111,9 @@
 - Define the name or IP address of the application server  
   `ApplicationServer=postscript.wcu.edu`
 - Set the system name reported by the server (cluster FQDN)  
-  `ServerName=serif.wcu.edu`
+  `ServerName=printserver.wcu.edu`
 - Change the name of the server used when binding to print queues (cluster FQDN)  
-  `PrintServerName=\\serif.wcu.edu`
+  `PrintServerName=\\printserver.wcu.edu`
 - Change the SNMP Community string used to query the printers (see SecretServer for SNMP Community string)  
   `SNMPCommunity=public`
 
@@ -124,26 +124,28 @@
     ```
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Print -Name DnsOnWire -PropertyType DWord -Value 1
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa -Name DisableLoopbackCheck -PropertyType DWord -Value 1
-    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name BackConnectionHostNames -PropertyType MultiString -Value printserver
+    New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0 -Name BackConnectionHostNames -PropertyType MultiString -Value ('printserver',' printserver.wcu.edu')
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name DisableStrictNameChecking -PropertyType DWord -Value 1
     New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -Name OptionalNames -PropertyType MultiString -Value printserver
     ```
 #### Detailed registry changes
 
 - HKLM\SYSTEM\CurrentControlSet\Control\Print  
-  `DWORD Value: DnsOnWire = 1`
+  `DWORD: DnsOnWire = 1`
 - HKLM\SYSTEM\CurrentControlSet\Control\Lsa  
-  `DWORD Value: DisableLoopbackCheck = 1`
+  `DWORD: DisableLoopbackCheck = 1`
+  HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0  
+  `REG_MULTI_SZ: BackConnectionHostNames = ('printserver', 'printserver.wcu.edu')`
 - HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
   `DWORD Value: DisableStrictNameChecking = 1`
 - HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
   `Multi-String Value: OptionalNames = printserver`
 
 ### Modify the local hosts file of the servers
-  - Add the cluster name and FQDN to the hosts file with the backend server`s IP Address
+  - Add the LOCAL SERVER IP Address with cluster name and FQDN to the hosts file
     ```
-    152.30.32.92     printserver.wcu.edu
-    152.30.32.92     printserver
+    152.30.35.1     printserver.wcu.edu
+    152.30.35.1     printserver
     ```
 
 ## 3. Mobility Print Server
@@ -157,7 +159,7 @@
 
 ## 4. Web Print Sandbox Server
 - Server `sceptre.wcu.edu`  
-- TBD   
+- TBD  
 
 ### Changes to Applcation Server configuration files
 
