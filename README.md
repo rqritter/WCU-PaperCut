@@ -28,6 +28,7 @@
       - [PowerShell commands](#powershell-commands)
       - [Detail of registry changes](#detail-of-registry-changes)
     - [Modify the local hosts file of the servers](#modify-the-local-hosts-file-of-the-servers)
+    - [Scripts that syncronize the print servers](#scripts-that-syncronize-the-print-servers)
   - [3. Mobility Print Server](#3-mobility-print-server)
     - [Changes to Mobility Print Server configuration files](#changes-to-mobility-print-server-configuration-files)
       - [C:\Program Files\PaperCut MF\..](#cprogram-filespapercut-mf)
@@ -181,6 +182,9 @@
     152.30.35.XX     printserver
     ```
 
+### Scripts that syncronize the print servers
+- TBD (Let Nathan Document)  
+
 ## 3. Mobility Print Server
 - Mobility Print Server `wingding.wcu.edu`  
 - Acts as DNS Server for `mobile-print.wcu.edu`  
@@ -192,7 +196,7 @@
 
 ## 4. Web Print Sandbox Server
 - Server `sceptre.wcu.edu`  
-- TBD  
+- TBD (Let Nathan Document)   
 
 ### Changes to Applcation Server configuration files
 
