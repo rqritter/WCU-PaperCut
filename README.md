@@ -14,6 +14,13 @@
       - [C:\Program Files\PaperCut MF\server\custom\service.conf](#cprogram-filespapercut-mfservercustomserviceconf)
     - [Changes to Payment Gateway settings files (for CBORD)](#changes-to-payment-gateway-settings-files-for-cbord)
       - [C:\Program Files\PaperCut MF\server\lib-ext\ext-payment-gateway-cbord-dx.properties](#cprogram-filespapercut-mfserverlib-extext-payment-gateway-cbord-dxproperties)
+    - [Customizations in PaperCut Application](#customizations-in-papercut-application)
+      - [Options - General](#options---general)
+      - [Options - Notifications](#options---notifications)
+      - [Options - Admin Rights](#options---admin-rights)
+      - [Options - Configuration Editor (Advanced)](#options---configuration-editor-advanced)
+    - [Automation (Card ID imports/updates)](#automation-card-id-importsupdates)
+    - [ADFS Setup](#adfs-setup)
   - [2. Secondary Print Servers](#2-secondary-print-servers)
     - [Changes to Print Server configuration files](#changes-to-print-server-configuration-files)
       - [C:\Program Files\PaperCut MF\providers\print\win\print-provider.conf](#cprogram-filespapercut-mfprovidersprintwinprint-providerconf)
@@ -99,6 +106,30 @@
 - Enable on-demand transfer   
   `cbord-dx.on-demand-transfer.enabled=Y`
 
+### Customizations in PaperCut Application
+
+#### Options - General
+- TBD (document when we recieve new license)  
+
+#### Options - Notifications
+- TBD (document when we recieve new license)  
+
+#### Options - Admin Rights
+- TBD (document when we recieve new license)  
+
+#### Options - Configuration Editor (Advanced)
+- Set card reader converter to ASCII  
+  `ext-device.card-no-converter=ascii-enc`
+- TBD (document when we recieve new license)  
+
+### Automation (Card ID imports/updates)
+- Windows Task Scheduler runs `C:\Scripts\Update-CardNumbersFull.ps1` daily at 6:15 AM  
+- Task is scheduled on both nodes, but only executes on the active node  
+- Details can be found in the powershell script  
+
+### ADFS Setup
+- See KB Article: https://www.papercut.com/kb/Main/DeployPaperCutWithSAMLSingleSignOn  
+
 ## 2. Secondary Print Servers
 - F5 Load Balancer is acting as `printserver.wcu.edu`  
 - Backend servers are `serif.wcu.edu`, `helvetica.wcu.edu`, `palatino.wcu.edu`  
@@ -114,10 +145,12 @@
   `ServerName=printserver.wcu.edu`
 - Change the name of the server used when binding to print queues (cluster FQDN)  
   `PrintServerName=\\printserver.wcu.edu`
-- Change the SNMP Community string used to query the printers (see SecretServer for SNMP Community string)  
+- Change the SNMP Community string used to query the printers (see SecretServer for Actual SNMP Community string)  
   `SNMPCommunity=public`
 
 ### Registry changes to enable Print Server clustering
+- Some of these are no longer needed but this was the configuration that we tested  
+- i.e. `OptionalNames` does not do anything because `DisableStrictNameChecking` is enabled  
 
 #### PowerShell commands
   - Run in an elevated PowerShell session
@@ -134,7 +167,7 @@
   `DWORD: DnsOnWire = 1`
 - HKLM\SYSTEM\CurrentControlSet\Control\Lsa  
   `DWORD: DisableLoopbackCheck = 1`
-  HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0  
+- HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0  
   `REG_MULTI_SZ: BackConnectionHostNames = ('printserver', 'printserver.wcu.edu')`
 - HKLM\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters  
   `DWORD Value: DisableStrictNameChecking = 1`
@@ -167,7 +200,7 @@
 
 ## 5. RightFax Server
 - Server `ditto.wcu.edu`  
-- TBD
+- TBD  
 
 ### Changes to Applcation Server configuration
 
