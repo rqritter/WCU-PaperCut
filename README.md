@@ -41,10 +41,10 @@
 
 ## 1. PaperCut Application Server
 - MS failover Cluster named `papercut.wcu.edu`  
-- Virtual Applcation Server is `postscript.wcu.edu`  
+- Virtual Application Server is `postscript.wcu.edu`  
 - Nodes are `courier.wcu.edu` and `copperplate.wcu.edu`  
 
-### Changes to Applcation Server configuration files
+### Changes to Application Server configuration files
 
 #### C:\Program Files\PaperCut MF\server\server.properties
 
@@ -66,7 +66,7 @@
     `#database.type=Internal` 
   - Add Settings For SQL Server
     ```
-    # WCU MS SQLServer connection
+    # WCU MS SQL Server connection
     # IMPORTANT: The username below is a SQL Server user, not a Windows user.
     database.type=SQLServer
     database.driver=net.sourceforge.jtds.jdbc.Driver
@@ -76,7 +76,7 @@
     ```
 #### C:\Program Files\PaperCut MF\server\custom\service.conf
 
-- Increase the share of memory avalable to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)  
+- Increase the share of memory available to PaperCut. (For more information, see the KB article: https://www.papercut.com/kb/Main/IncreaseMaxMemoryUsage)  
   - Add the following new line to the file  
     `wrapper.java.additional.6=-XX:DefaultMaxRAMFraction=2`
 
@@ -119,11 +119,16 @@
 - TBD (document when we recieve new license)  
 
 #### Options - Configuration Editor (Advanced)
+- Edit device welcome text
+  `ext-device-msg.welcome-text=Tap your CatCard or log in with your WCUid to begin`
 - Set card reader converter to ASCII  
   `ext-device.card-no-converter=ascii-enc`
+- When using the "self association" function we needed to have it use the secondary ID. (We have since decided against self association)
+  `ext-device.card-self-association.use-secondary-card-number=Y`
 - TBD (document when we recieve new license)  
 
 ### Automation (Card ID imports/updates)
+- Card information comes from Banner and is written to `\\bounty2\nfsprod\dataoutput\it\papercut-extract.tsv daily at 6:00 AM`
 - Windows Task Scheduler runs `C:\Scripts\Update-CardNumbersFull.ps1` daily at 6:15 AM  
 - Task is scheduled on both nodes, but only executes on the active node  
 - Details can be found in the powershell script  
@@ -182,7 +187,7 @@
     152.30.35.XX     printserver
     ```
 
-### Scripts that syncronize the print servers
+### Scripts that synchronize the print servers
 - TBD (Let Nathan Document)  
 
 ## 3. Mobility Print Server
@@ -198,7 +203,7 @@
 - Server `sceptre.wcu.edu`  
 - TBD (Let Nathan Document)   
 
-### Changes to Applcation Server configuration files
+### Changes to Application Server configuration files
 
 #### C:\Program Files\PaperCut MF\..
 
