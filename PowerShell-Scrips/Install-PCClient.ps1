@@ -4,10 +4,9 @@
   Install PaperCut Client and set to autostart
 
 .NOTES
-  Updated: 2018-11-27
+  Updated: 2018-2-25
   Author: Richie
-  ToDo:
-     1. test
+  -Added an aditional method to check for 64bit OS.
 #>
 # Declarations
 
@@ -23,7 +22,10 @@ $MSIArguments = @(
 )
 
 # Change $AutoRun variable if 64-bit OS
+# Check using Environmental Variable
 if ([Environment]::Is64BitOperatingSystem) {$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe"'}
+# Check using WMI in case OS is old (kept Environmental check in case WMI is not working)
+if ((Get-WmiObject Win32_OperatingSystem | Select-Object osarchitecture).osarchitecture -eq "64-bit") {$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe"'}
 
 
 # Check if script is running as admin
