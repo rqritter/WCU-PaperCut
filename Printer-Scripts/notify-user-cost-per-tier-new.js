@@ -1,6 +1,5 @@
 /*
 * Notify the user of the job cost on different tiers.
-* If the user is a student, 
 */
 function printJobHook(inputs, actions) {
 
@@ -22,13 +21,7 @@ function printJobHook(inputs, actions) {
   var tierThree_Cost = inputs.job.calculateCostForPrinter(tierThree_Printer);
   var tierFour_Cost = inputs.job.calculateCostForPrinter(tierFour_Printer);
   
-  actions.log.debug("Cost for: " + tierOne_Printer + " is: " + inputs.utils.formatCost(tierOne_Printer));
-  actions.log.debug("Cost for: " + tierTwo_Printer + " is: " + inputs.utils.formatCost(tierTwo_Printer));
-  actions.log.debug("Cost for: " + tierThree_Printer + " is: " + inputs.utils.formatCost(tierThree_Printer));
-  actions.log.debug("Cost for: " + tierFour_Printer + " is: " + inputs.utils.formatCost(tierFour_Printer));
-  
   // Set the pop-up message options
-  
   var options =  {
     'fastResponse': true,
     'hideJobDetails' : true,
