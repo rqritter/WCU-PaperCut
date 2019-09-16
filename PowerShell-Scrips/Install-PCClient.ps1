@@ -4,9 +4,10 @@
   Install PaperCut Client and set to autostart
 
 .NOTES
-  Updated: 2018-2-25
+  Updated: 2019-7-30
   Author: Richie
-  -Added an aditional method to check for 64bit OS.
+  -New installers for 19.x.
+  -Uninstall existing clients
 #>
 # Declarations
 
@@ -21,12 +22,7 @@ $MSIArguments = @(
     "ALLUSERS=1"
 )
 
-# Change $AutoRun variable if 64-bit OS
-# Check using Environmental Variable
-if ([Environment]::Is64BitOperatingSystem) {$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe"'}
-# Check using WMI in case OS is old (kept Environmental check in case WMI is not working)
-if ((Get-WmiObject Win32_OperatingSystem | Select-Object osarchitecture).osarchitecture -eq "64-bit") {$AutoRun = '"C:\Program Files (x86)\PaperCut MF Client\pc-client.exe"'}
-
+$appName = "PaperCut MF Client"
 
 # Check if script is running as admin
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -36,8 +32,33 @@ if (!$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adminis
     Break
 }
 
-Write-host "Installing PaperCut Client. Please wait..."
-Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow -WorkingDirectory $InstallerFolder
-New-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Run -Name PaperCut_Client -PropertyType String -Value $AutoRun
-Start-Process $AutoRun
+# Check for existing installations of PaperCut MF Client and uninstall if they exist
 
+# Check for 32-bit install and uninstall if found
+$uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | foreach { Get-ItemProperty $_.PSPath } | Where-Object { $_ -match $appName }
+if ($uninstall32) {
+Write-Host "Uninstalling Previous 32-bit version of the PaperCut Client..."
+start-process "msiexec.exe" -arg "/X $($uninstall32.PSChildName) /q" -Wait
+Write-Host "Complete"
+}
+
+# Check for 64-bit install and uninstall if found
+$uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" | foreach { Get-ItemProperty $_.PSPath } | Where-Object { $_ -match $appName }
+if ($uninstall64) {
+Write-Host "Uninstalling Previous 64-bit version of the PaperCut Client..."
+start-process "msiexec.exe" -arg "/X $($uninstall64.PSChildName) /q" -Wait
+Write-Host "Complete"
+}
+
+# Change $installerFolder variable if 32-bit OS
+# Check using Environmental Variable
+if (![Environment]::Is64BitOperatingSystem) {$installerFolder = '"\\printserver.wcu.edu\share\clients\win32"'}
+# Check using WMI in case OS is old (kept Environmental check in case WMI is not working)
+if ((Get-WmiObject Win32_OperatingSystem | Select-Object osarchitecture).osarchitecture -eq "32-bit") {$installerFolder = '"\\printserver.wcu.edu\share\clients\win32"'}
+
+
+Write-Host "Installing PaperCut Client. Please wait..."
+Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow -WorkingDirectory $InstallerFolder
+Set-ItemProperty -Path HKLM:\Software\Microsoft\Windows\CurrentVersion\Run -Name PaperCut_Client -Value $AutoRun
+Write-Host "Starting the PaperCut Client..."
+Start-Process $AutoRun
